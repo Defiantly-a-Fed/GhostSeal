@@ -1,4 +1,5 @@
 #include "CommandLine.h"
+#include "GhostSealRuntime.h"
 
 // Brightness functions defined in esp32_marauder.ino
 #ifndef HAS_MINI_SCREEN
@@ -219,6 +220,34 @@ void CommandLine::runCommand(String input) {
   LinkedList<String> cmd_args = this->parseCommand(input, " ");
   
   //// Admin commands
+
+  // Ghost Seal control
+  if (cmd_args.get(0) == "ghostseal") {
+    if (cmd_args.size() < 2) {
+      Serial.println(F("{\"event_type\":\"ghostseal_help\",\"commands\":[\"ghostseal status\",\"ghostseal arm <sec>\",\"ghostseal disarm\"]}"));
+    }
+    else if (cmd_args.get(1) == "status") {
+      ghostseal_runtime.status();
+    }
+    else if (cmd_args.get(1) == "arm") {
+      uint32_t durationSec = 60;
+
+      if (cmd_args.size() >= 3) {
+        durationSec = cmd_args.get(2).toInt();
+      }
+
+      ghostseal_runtime.arm(durationSec);
+    }
+    else if (cmd_args.get(1) == "disarm") {
+      ghostseal_runtime.disarm();
+    }
+    else {
+      Serial.println(F("{\"event_type\":\"ghostseal_error\",\"reason\":\"unknown_ghostseal_command\"}"));
+    }
+
+    return;
+  }
+
   // Help
   if (cmd_args.get(0) == HELP_CMD) {
     Serial.println(HELP_HEAD);
