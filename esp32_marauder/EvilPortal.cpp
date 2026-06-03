@@ -1,4 +1,6 @@
 #include "EvilPortal.h"
+#include "GhostSealRuntime.h"
+#include "../include/ghostseal_config.h"
 
 char apName[MAX_AP_NAME_SIZE] = "PORTAL";
 
@@ -32,6 +34,9 @@ void EvilPortal::cleanup() {
   #ifdef HAS_PSRAM
     free(index_html);
     index_html = nullptr;
+  #endif
+  #if GHOSTSEAL_REQUIRE_TOOL_ARM
+    ghostseal_runtime.markTxStop("evil_portal_ap");
   #endif
 }
 
@@ -311,6 +316,12 @@ bool EvilPortal::setAP(String essid) {
 }
 
 void EvilPortal::startAP() {
+  #if GHOSTSEAL_REQUIRE_TOOL_ARM
+  if (!ghostseal_runtime.canTransmit("evil_portal_ap")) {
+    return;
+  }
+  ghostseal_runtime.markTxStart("evil_portal_ap");
+  #endif
   const IPAddress AP_IP(172, 0, 0, 1);
 
   WiFi.mode(WIFI_AP);
