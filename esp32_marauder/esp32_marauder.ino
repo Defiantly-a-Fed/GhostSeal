@@ -5,6 +5,9 @@ Partition Scheme: Minimal SPIFFS
 https://www.online-utility.org/image/convert/to/XBM
 */
 
+#include "GhostSealRuntime.h"
+#include "../include/ghostseal_config.h"
+
 #include "configs.h"
 
 #ifndef HAS_SCREEN
@@ -237,7 +240,8 @@ void setup()
   #endif
 
   Serial.begin(115200);
-
+  ghostseal_runtime.begin();
+  Serial.println(F("{\"event_type\":\"ghostseal_boot\",\"firmware\":\"GhostSeal\",\"mode\":\"uart_first\",\"quiet_boot\":true}"));
   while(!Serial)
     delay(10);
 
@@ -420,6 +424,7 @@ void setup()
 
 void loop()
 {
+  ghostseal_runtime.checkTimeout();
   currentTime = millis();
   bool mini = false;
 
