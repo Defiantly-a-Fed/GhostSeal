@@ -1,7 +1,7 @@
 #include "EvilPortal.h"
 #include "GhostSealRuntime.h"
-#include "../include/ghostseal_config.h"
-
+#include "ghostseal_config.h"
+char index_html[MAX_HTML_SIZE] = "TEST";
 char apName[MAX_AP_NAME_SIZE] = "PORTAL";
 
 #ifdef HAS_PSRAM

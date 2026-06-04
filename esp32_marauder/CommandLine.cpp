@@ -14,11 +14,12 @@ void CommandLine::RunSetup() {
   Serial.println(F("         ESP32 Marauder      \n"));
   Serial.println("            " + version_number + "\n");
   Serial.println(F("       By: justcallmekoko\n"));
+  Serial.println(F("       Ghost Seal Fork 🦭\n"));
+  Serial.println(F("       @defiantly_a_fed\n"));
   Serial.println(F("--------------------------------\n\n"));
   
   Serial.print("> ");
 }
-
 String CommandLine::getSerialInput() {
   String input = "";
 
@@ -626,6 +627,9 @@ void CommandLine::runCommand(String input) {
       if (cmd_sw != -1) {
         String et_command = cmd_args.get(cmd_sw + 1);
         if (et_command == "start") {
+	 if (!ghostseal_runtime.canTransmit("evil_portal_cli")) {
+          return;
+          }
           Serial.print(F("Starting Evil Portal. Stop with "));
           Serial.println(STOPSCAN_CMD);
           #ifdef HAS_SCREEN

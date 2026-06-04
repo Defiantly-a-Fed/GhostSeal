@@ -6,7 +6,7 @@ https://www.online-utility.org/image/convert/to/XBM
 */
 
 #include "GhostSealRuntime.h"
-#include "../include/ghostseal_config.h"
+#include "ghostseal_config.h"
 
 #include "configs.h"
 
