@@ -225,11 +225,51 @@ void CommandLine::runCommand(String input) {
   // Ghost Seal control
   if (cmd_args.get(0) == "ghostseal") {
     if (cmd_args.size() < 2) {
-      Serial.println(F("{\"event_type\":\"ghostseal_help\",\"commands\":[\"ghostseal status\",\"ghostseal arm <sec>\",\"ghostseal disarm\"]}"));
+      Serial.println(F(
+        "{\"event_type\":\"ghostseal_help\","
+        "\"commands\":["
+        "\"ghostseal ping\","
+        "\"ghostseal identify\","
+        "\"ghostseal status\","
+        "\"ghostseal arm <sec>\","
+        "\"ghostseal disarm\","
+        "\"ghostseal tool list\","
+        "\"ghostseal tool status\","
+        "\"ghostseal tool start <tool>\","
+        "\"ghostseal tool stop\""
+        "]}"
+      ));
     }
+
+    else if (cmd_args.get(1) == "ping") {
+      Serial.println(F(
+        "{\"event_type\":\"ghostseal_ping\",\"response\":\"pong\"}"
+      ));
+    }
+
+    else if (cmd_args.get(1) == "identify") {
+      Serial.println(F(
+        "{\"event_type\":\"ghostseal_identity\","
+        "\"device\":\"ghostseal\","
+        "\"node_id\":\"ghostseal-01\","
+        "\"transport\":\"uart\"}"
+      ));
+    }
+
     else if (cmd_args.get(1) == "status") {
       ghostseal_runtime.status();
+
+      Serial.print(F(
+        "{\"event_type\":\"ghostseal_tool_status\",\"running\":"
+      ));
+
+      Serial.print(wifi_scan_obj.scanning() ? F("true") : F("false"));
+
+      Serial.print(F(",\"scan_mode\":"));
+      Serial.print(wifi_scan_obj.currentScanMode);
+      Serial.println(F("}"));
     }
+
     else if (cmd_args.get(1) == "arm") {
       uint32_t durationSec = 60;
 
@@ -239,11 +279,127 @@ void CommandLine::runCommand(String input) {
 
       ghostseal_runtime.arm(durationSec);
     }
+
     else if (cmd_args.get(1) == "disarm") {
+      wifi_scan_obj.StartScan(WIFI_SCAN_OFF);
       ghostseal_runtime.disarm();
     }
+
+    else if (cmd_args.get(1) == "tool") {
+      if (cmd_args.size() < 3) {
+        Serial.println(F(
+          "{\"event_type\":\"ghostseal_tool_help\","
+          "\"commands\":["
+          "\"ghostseal tool list\","
+          "\"ghostseal tool status\","
+          "\"ghostseal tool start <tool>\","
+          "\"ghostseal tool stop\""
+          "]}"
+        ));
+      }
+
+      else if (cmd_args.get(2) == "list") {
+        Serial.println(F(
+          "{\"event_type\":\"ghostseal_tool_list\","
+          "\"passive\":["
+          "\"packet_rate\","
+          "\"channel_analyzer\","
+          "\"channel_activity\","
+          "\"signal_strength\","
+          "\"ap_sta_scan\""
+          "]}"
+        ));
+      }
+
+      else if (cmd_args.get(2) == "status") {
+        Serial.print(F(
+          "{\"event_type\":\"ghostseal_tool_status\",\"running\":"
+        ));
+
+        Serial.print(wifi_scan_obj.scanning() ? F("true") : F("false"));
+
+        Serial.print(F(",\"scan_mode\":"));
+        Serial.print(wifi_scan_obj.currentScanMode);
+        Serial.println(F("}"));
+      }
+
+      else if (cmd_args.get(2) == "stop") {
+        uint8_t oldScanMode = wifi_scan_obj.currentScanMode;
+
+        wifi_scan_obj.StartScan(WIFI_SCAN_OFF);
+
+        Serial.print(F(
+          "{\"event_type\":\"ghostseal_tool_stopped\",\"previous_scan_mode\":"
+        ));
+        Serial.print(oldScanMode);
+        Serial.println(F("}"));
+      }
+
+      else if ((cmd_args.get(2) == "start") && (cmd_args.size() >= 4)) {
+        String toolName = cmd_args.get(3);
+
+        uint8_t scanMode = WIFI_SCAN_OFF;
+        uint16_t color = TFT_CYAN;
+        bool validTool = true;
+
+        if (toolName == "packet_rate") {
+          scanMode = WIFI_SCAN_PACKET_RATE;
+          color = TFT_ORANGE;
+        }
+        else if (toolName == "channel_analyzer") {
+          scanMode = WIFI_SCAN_CHAN_ANALYZER;
+          color = TFT_CYAN;
+        }
+        else if (toolName == "channel_activity") {
+          scanMode = WIFI_SCAN_CHAN_ACT;
+          color = TFT_CYAN;
+        }
+        else if (toolName == "signal_strength") {
+          scanMode = WIFI_SCAN_SIG_STREN;
+          color = TFT_MAGENTA;
+        }
+        else if (toolName == "ap_sta_scan") {
+          scanMode = WIFI_SCAN_AP_STA;
+          color = TFT_MAGENTA;
+        }
+        else {
+          validTool = false;
+        }
+
+        if (validTool) {
+          wifi_scan_obj.StartScan(scanMode, color);
+
+          Serial.print(F(
+            "{\"event_type\":\"ghostseal_tool_started\",\"tool\":\""
+          ));
+          Serial.print(toolName);
+          Serial.print(F("\",\"mode\":\"passive\",\"scan_mode\":"));
+          Serial.print(scanMode);
+          Serial.println(F("}"));
+        }
+        else {
+          Serial.print(F(
+            "{\"event_type\":\"ghostseal_error\","
+            "\"reason\":\"unknown_tool\",\"tool\":\""
+          ));
+          Serial.print(toolName);
+          Serial.println(F("\"}"));
+        }
+      }
+
+      else {
+        Serial.println(F(
+          "{\"event_type\":\"ghostseal_error\","
+          "\"reason\":\"invalid_tool_command\"}"
+        ));
+      }
+    }
+
     else {
-      Serial.println(F("{\"event_type\":\"ghostseal_error\",\"reason\":\"unknown_ghostseal_command\"}"));
+      Serial.println(F(
+        "{\"event_type\":\"ghostseal_error\","
+        "\"reason\":\"unknown_ghostseal_command\"}"
+      ));
     }
 
     return;
