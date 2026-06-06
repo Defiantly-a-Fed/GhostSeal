@@ -1,0 +1,24 @@
+
+BLE Active Command Validation — PARTIAL PASS
+
+Commands tested:
+ghostseal arm 60
+ghostseal exec blespam -t sourapple
+
+Observed output:
+{"event_type":"ghostseal_tool_armed","duration_sec":60,"tx_permitted":true,"tx_active":false}
+{"event_type":"ghostseal_exec_forwarded","command":"blespam -t sourapple","policy":"active"}
+#blespam -t sourapple
+StartingSour Apple attack. Stop with stopscan
+
+Results:
+- Ghost Seal armed successfully.
+- BLE spam command was classified as an active command.
+- Command was forwarded only while armed.
+- Original Marauder blespam handler received the command.
+- Handler reported Sour Apple attack start.
+- Phone did not display the expected popup.
+
+Conclusion:
+Firmware command path is working through Ghost Seal for blespam -t sourapple. Phone-side display behavior is not reliable enough to use as the only validation method. BLE runtime needs additional receiver-side validation, such as a BLE scanner or controlled test device.
+
