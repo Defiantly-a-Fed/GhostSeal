@@ -724,3 +724,56 @@ Observed notes:
 Conclusion:
 Command parity validation block 2 passed. ghostseal-bridge v0.1.1 can list passive tools, start packet_rate, report tool state, clean up with stopscan, and block active blespam execution while disarmed.
 
+
+## ghostseal-bridge v0.1.1 passive tool sweep - 2026-06-06
+
+Environment:
+- Node: ghostseal-node1
+- User: cyberdeck
+- Serial port: /dev/ttyACM0
+- Baud: 115200
+- Branch: ghostseal-command-parity
+- Bridge: ghostseal-bridge v0.1.1
+
+Validated passive tools:
+- packet_rate
+- channel_analyzer
+- channel_activity
+- signal_strength
+- ap_sta_scan
+
+Results:
+- PASS: packet_rate started, reported running=true, used scan_mode=48, and stopped cleanly.
+- PASS: channel_analyzer started, reported running=true, used scan_mode=46, and stopped cleanly.
+- PASS: channel_activity started, reported running=true, used scan_mode=71, and stopped cleanly.
+- PASS: signal_strength started, reported running=true, used scan_mode=29, and stopped cleanly.
+- PASS: ap_sta_scan started, reported running=true, used scan_mode=49, and stopped cleanly.
+- PASS: all passive tools kept Ghost Seal disarmed.
+- PASS: all passive tools kept tx_permitted=false.
+- PASS: all passive tools kept tx_active=false.
+- PASS: stopscan returned each tested passive mode to running=false and scan_mode=0.
+
+Observed notes:
+- An attempted pasted Bash loop malformed into an empty tool start command. Firmware returned ghostseal_error with reason=invalid_tool_command and remained safe.
+- ap_sta_scan emits live raw scan output into the UART stream while running.
+- Bridge v0.1.1 currently mixes raw scan output, bridge metadata, and Ghost Seal JSON events in the terminal output.
+- Future bridge improvement: classify output lines as json_event, raw_scan_output, bridge_metadata, command_echo, or prompt.
+
+Passive tool scan mode map observed in this validation:
+- packet_rate: 48
+- channel_analyzer: 46
+- channel_activity: 71
+- signal_strength: 29
+- ap_sta_scan: 49
+
+Final safe state:
+- tool_armed=false
+- tx_permitted=false
+- tx_active=false
+- remaining_ms=0
+- running=false
+- scan_mode=0
+
+Conclusion:
+All currently listed Ghost Seal passive tools validated through ghostseal-bridge v0.1.1. Passive command parity block passed.
+
