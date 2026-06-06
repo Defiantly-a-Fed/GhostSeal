@@ -393,3 +393,52 @@ Next:
 - The bridge should own the serial port.
 - Ragnar should talk to ghostseal-bridge, not directly to /dev/ttyACM0.
 - Add command queue, reconnect handling, and structured log export.
+
+============================================================
+ghostseal-bridge v0.1 Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Host: ghostseal-node1
+- User: cyberdeck
+
+Installed command:
+- /usr/local/bin/ghostseal-bridge
+
+Serial:
+- Port detected: /dev/ttyACM0
+- Baud: 115200
+- Device description: USB JTAG/serial debug unit
+
+Commands validated:
+- ghostseal-bridge ping
+- ghostseal-bridge identify
+- ghostseal-bridge status
+- ghostseal-bridge info
+- ghostseal-bridge stop
+- ghostseal-bridge disarm
+- ghostseal-bridge exec info
+- ghostseal-bridge exec packetcount
+- ghostseal-bridge stop
+- ghostseal-bridge status
+
+Observed:
+- ping returned ghostseal_ping / pong.
+- identify returned ghostseal_identity.
+- status returned ghostseal_status and ghostseal_tool_status.
+- info used ghostseal exec info and returned Marauder firmware info.
+- packetcount was forwarded through ghostseal exec.
+- stopscan was successfully sent through ghostseal-bridge stop.
+- final status showed tool_armed false, tx_permitted false, tx_active false, running false, scan_mode 0.
+
+Conclusion:
+ghostseal-bridge v0.1 passed. Node 1 can now control Ghost Seal through a named Pi command wrapper instead of manual Serial Monitor input. This proves the first working Pi-to-ESP32 command bridge for the Ghost Seal / Spectrum Seals architecture.
+
+Next:
+- Keep ghostseal-bridge as the only program that owns /dev/ttyACM0.
+- Convert ghostseal-bridge from one-command wrapper into persistent service later.
+- Add command queue, reconnect detection, crash detection, and structured log export.
+- Keep Ragnar above ghostseal-bridge instead of letting Ragnar directly fight for the serial port.
