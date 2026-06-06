@@ -442,3 +442,29 @@ Next:
 - Convert ghostseal-bridge from one-command wrapper into persistent service later.
 - Add command queue, reconnect detection, crash detection, and structured log export.
 - Keep Ragnar above ghostseal-bridge instead of letting Ragnar directly fight for the serial port.
+
+============================================================
+Node 1 BLE Active Gate Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Host: ghostseal-node1
+- User: cyberdeck
+
+Command tested from Node 1:
+ghostseal-bridge exec blespam -t sourapple
+
+Observed output:
+[ghostseal-bridge] command=ghostseal exec blespam -t sourapple
+#ghostseal exec blespam -t sourapple
+{"event_type":"ghostseal_cmd_blocked","module":"blespam","reason":"tool_not_armed"}
+{"event_type":"ghostseal_exec_denied","command":"blespam -t sourapple","reason":"not_armed"}
+
+Result:
+PASS
+
+Conclusion:
+Node 1 ghostseal-bridge correctly sent a BLE active command through ghostseal exec. Ghost Seal classified blespam as active and blocked it while disarmed. This confirms the Pi-side bridge respects the Ghost Seal authorization model when using ghostseal exec.
