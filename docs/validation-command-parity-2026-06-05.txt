@@ -777,3 +777,48 @@ Final safe state:
 Conclusion:
 All currently listed Ghost Seal passive tools validated through ghostseal-bridge v0.1.1. Passive command parity block passed.
 
+
+## ghostseal-bridge v0.1.1 active gate allowed-command validation - 2026-06-06
+
+Environment:
+- Node: ghostseal-node1
+- User: cyberdeck
+- Serial port: /dev/ttyACM0
+- Baud: 115200
+- Branch: ghostseal-command-parity
+- Bridge: ghostseal-bridge v0.1.1
+- Test condition: safe controlled environment
+
+Validated commands:
+- ghostseal-bridge disarm
+- ghostseal-bridge status
+- ghostseal-bridge arm 15
+- ghostseal-bridge exec blespam
+- ghostseal-bridge stop
+- ghostseal-bridge disarm
+- ghostseal-bridge status
+
+Results:
+- PASS: initial disarm returned tx_permitted=false and tx_active=false.
+- PASS: initial status confirmed tool_armed=false, tx_permitted=false, tx_active=false, running=false, and scan_mode=0.
+- PASS: arm 15 opened the active gate and returned tx_permitted=true.
+- PASS: status after arm showed tool_armed=true, tx_permitted=true, tx_active=false, and remaining_ms=10900.
+- PASS: ghostseal exec blespam was forwarded with policy=active while armed.
+- PASS: armed blespam command did not emit ghostseal_cmd_blocked.
+- PASS: armed blespam command did not emit ghostseal_exec_denied.
+- PASS: timeout/disarm event returned tx_permitted=false and tx_active=false.
+- PASS: stopscan cleanup executed after the active command.
+- PASS: manual disarm returned tx_permitted=false and tx_active=false.
+- PASS: final status confirmed safe state.
+
+Final safe state:
+- tool_armed=false
+- tx_permitted=false
+- tx_active=false
+- remaining_ms=0
+- running=false
+- scan_mode=0
+
+Conclusion:
+Active gate behavior is validated for blespam through ghostseal-bridge v0.1.1. The same command path is denied while disarmed and forwarded only while armed. Cleanup returns Ghost Seal to a safe state.
+
