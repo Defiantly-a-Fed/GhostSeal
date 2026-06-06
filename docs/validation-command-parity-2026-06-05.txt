@@ -337,3 +337,59 @@ Next:
 - Update the Node 1 script to auto-detect /dev/ttyACM0 or /dev/ttyUSB0.
 - Build ghostseal-bridge v0.1 as the single owner of the ESP32 serial port.
 - Keep Ragnar above ghostseal-bridge instead of letting multiple programs fight over serial.
+
+============================================================
+Node 1 Serial Bridge Script Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Host: ghostseal-node1
+- User: cyberdeck
+
+Script:
+~/ghostseal-node1/ghostseal_serial_test.py
+
+Serial detection:
+- Detected /dev/ttyS0
+- Detected /dev/ttyACM0 as USB JTAG/serial debug unit
+- Selected /dev/ttyACM0
+- Baud rate: 115200
+
+Runtime log created on Pi:
+~/ghostseal-node1/logs/ghostseal_serial_20260606_000123.log
+
+Commands tested from Node 1:
+- ghostseal ping
+- ghostseal identify
+- ghostseal status
+- ghostseal exec info
+- stopscan
+- ghostseal disarm
+- ghostseal status
+
+Results:
+- ghostseal ping: PASS
+- ghostseal identify: PASS
+- ghostseal status: PASS
+- ghostseal exec info: PASS
+- Node 1 successfully parsed Ghost Seal JSON events.
+- Node 1 successfully forwarded a Marauder command through ghostseal exec.
+- ghostseal exec info returned firmware info for Marauder v1.12.2.
+- Cleanup sequence successfully stopped scan and disarmed Ghost Seal.
+
+Observed:
+- Boot banner was not detected in the capture window. This is not blocking because the board may have already booted before the Pi started reading.
+- Initial status showed running true and scan_mode 101, likely leftover from earlier BLE testing.
+- Cleanup succeeded and final status showed running false and scan_mode 0.
+
+Conclusion:
+Node 1 serial bridge script passed. Pi Zero 2 W can now auto-detect the Ghost Seal ESP32, send native Ghost Seal commands, forward Marauder commands, parse JSON events, log runtime output, and return the firmware to a safe idle state.
+
+Next:
+- Convert this test script into ghostseal-bridge v0.1.
+- The bridge should own the serial port.
+- Ragnar should talk to ghostseal-bridge, not directly to /dev/ttyACM0.
+- Add command queue, reconnect handling, and structured log export.
