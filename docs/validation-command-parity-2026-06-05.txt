@@ -468,3 +468,27 @@ PASS
 
 Conclusion:
 Node 1 ghostseal-bridge correctly sent a BLE active command through ghostseal exec. Ghost Seal classified blespam as active and blocked it while disarmed. This confirms the Pi-side bridge respects the Ghost Seal authorization model when using ghostseal exec.
+
+============================================================
+Direct Marauder Active Handler Gate Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Commands tested while disarmed:
+- ghostseal disarm
+- blespam -t sourapple
+- attack -t test
+- ghostseal status
+
+Expected:
+Raw Marauder active commands should not bypass Ghost Seal authorization while disarmed.
+
+Result:
+- Raw blespam direct path is now blocked by ghostseal_runtime.canTransmit("blespam_direct").
+- Raw attack direct path is now blocked by ghostseal_runtime.canTransmit("attack_direct").
+- Direct active commands no longer bypass the Ghost Seal exec authorization model.
+- Final status confirmed safe idle state.
+
+Conclusion:
+Direct raw Marauder active-command bypass has been patched for attack and blespam. Both ghostseal exec active commands and raw active handlers now require Ghost Seal authorization.
