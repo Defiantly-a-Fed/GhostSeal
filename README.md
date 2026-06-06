@@ -68,3 +68,7 @@ Additional Ghost Seal modifications are copyright Gaby Strickland and are distri
 ## Responsible Use
 
 Ghost Seal is intended for authorized security testing, defensive research, education, and operation on systems and networks where the operator has permission.
+
+## Ghost Seal Command Reference
+
+See [GHOST_SEAL_COMMANDS.md](GHOST_SEAL_COMMANDS.md) for the complete Ghost Seal CLI, Marauder forwarding commands, authorization model, and current hardware-validation status.
