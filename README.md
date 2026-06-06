@@ -72,3 +72,74 @@ Ghost Seal is intended for authorized security testing, defensive research, educ
 ## Ghost Seal Command Reference
 
 See [GHOST_SEAL_COMMANDS.md](GHOST_SEAL_COMMANDS.md) for the complete Ghost Seal CLI, Marauder forwarding commands, authorization model, and current hardware-validation status.
+
+
+    ## Current Commands
+
+    Ghost Seal currently has two command layers:
+
+    ```text
+    ghostseal <native Ghost Seal command>
+    ghostseal exec <original Marauder command>
+    ```
+
+    Native Ghost Seal commands currently implemented:
+
+    ```text
+    ghostseal
+    ghostseal ping
+    ghostseal identify
+    ghostseal status
+    ghostseal arm <sec>
+    ghostseal disarm
+    ghostseal tool list
+    ghostseal tool status
+    ghostseal tool start <tool>
+    ghostseal tool stop
+    ghostseal exec <marauder command>
+    ```
+
+    Passive Ghost Seal tool aliases currently implemented:
+
+    ```text
+    ghostseal tool start packet_rate
+    ghostseal tool start channel_analyzer
+    ghostseal tool start channel_activity
+    ghostseal tool start signal_strength
+    ghostseal tool start ap_sta_scan
+    ghostseal tool stop
+    ghostseal tool status
+    ```
+
+    Original Marauder commands must currently be run through `ghostseal exec`.
+
+    Examples:
+
+    ```text
+    ghostseal exec help
+    ghostseal exec info
+    ghostseal exec scanall
+    ghostseal exec sniffbeacon
+    ghostseal exec sniffprobe
+    ghostseal exec packetcount
+    ghostseal exec attack -t <attack_type>
+    ghostseal exec evilportal -c start
+    ```
+
+    Important: native aliases such as `ghostseal attack ...`, `ghostseal scan ...`, and `ghostseal sniff ...` are planned but are not implemented yet. Until those aliases are added, use `ghostseal exec <original Marauder command>`.
+
+    Example active-command flow:
+
+    ```text
+    ghostseal arm 120
+    ghostseal exec attack -t rickroll
+    stopscan
+    ghostseal disarm
+    ```
+
+    Current authorization state fields:
+
+    ```text
+    tx_permitted = Ghost Seal is armed and active commands are allowed
+    tx_active    = a transmit-capable operation is currently running
+    ```
