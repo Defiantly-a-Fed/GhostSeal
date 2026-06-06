@@ -17,7 +17,7 @@ void CommandLine::RunSetup() {
   Serial.println(F("       Ghost Seal Fork 🦭\n"));
   Serial.println(F("       @defiantly_a_fed\n"));
   Serial.println(F("--------------------------------\n\n"));
-  
+
   Serial.print("> ");
 }
 String CommandLine::getSerialInput() {
@@ -91,7 +91,7 @@ int CommandLine::argSearch(LinkedList<String>* cmd_args_list, String key) {
 bool CommandLine::checkValueExists(LinkedList<String>* cmd_args_list, int index) {
   if (index < cmd_args_list->size() - 1)
     return true;
-    
+
   return false;
 }
 
@@ -120,10 +120,10 @@ bool CommandLine::hasSSIDs() {
 
 void CommandLine::showCounts(int selected, int unselected) {
   Serial.print((String) selected + " selected");
-  
-  if (unselected != -1) 
+
+  if (unselected != -1)
     Serial.print(", " + (String) unselected + " unselected");
-  
+
   Serial.println("");
 }
 
@@ -213,13 +213,13 @@ void CommandLine::runCommand(String input) {
   if (input == "") return;
 
   if(wifi_scan_obj.scanning() && wifi_scan_obj.currentScanMode == WIFI_SCAN_GPS_NMEA){
-    if(input != STOPSCAN_CMD) return;    
+    if(input != STOPSCAN_CMD) return;
   }
   else
     Serial.println("#" + input);
 
   LinkedList<String> cmd_args = this->parseCommand(input, " ");
-  
+
   //// Admin commands
 
   // Ghost Seal control
@@ -234,6 +234,7 @@ void CommandLine::runCommand(String input) {
         "\"ghostseal arm <sec>\","
         "\"ghostseal disarm\","
         "\"ghostseal tool list\","
+        "\"ghostseal exec <marauder command>\","
         "\"ghostseal tool status\","
         "\"ghostseal tool start <tool>\","
         "\"ghostseal tool stop\""
@@ -283,6 +284,77 @@ void CommandLine::runCommand(String input) {
     else if (cmd_args.get(1) == "disarm") {
       wifi_scan_obj.StartScan(WIFI_SCAN_OFF);
       ghostseal_runtime.disarm();
+    }
+
+    else if (cmd_args.get(1) == "exec") {
+      if (cmd_args.size() < 3) {
+        Serial.println(F(
+          "{\"event_type\":\"ghostseal_error\","
+          "\"reason\":\"missing_forwarded_command\"}"
+        ));
+      }
+      else {
+        String forwardedCommand = "";
+
+        for (int i = 2; i < cmd_args.size(); i++) {
+          if (i > 2) {
+            forwardedCommand += " ";
+          }
+
+          forwardedCommand += cmd_args.get(i);
+        }
+
+        String forwardedRoot = cmd_args.get(2);
+        forwardedRoot.toLowerCase();
+
+        bool activeCommand =
+  	 forwardedRoot == ATTACK_CMD ||
+         forwardedRoot == BT_SPAM_CMD ||
+         forwardedRoot == BT_SPOOFAT_CMD ||
+         forwardedRoot == EVIL_PORTAL_CMD ||
+         forwardedRoot == KARMA_CMD ||
+         forwardedRoot == JOIN_CMD ||
+         forwardedRoot == PING_CMD ||
+         forwardedRoot == ARP_SCAN_CMD ||
+         forwardedRoot == PORT_SCAN_CMD;
+
+        bool invalidForward =
+          forwardedRoot == "ghostseal";
+
+        if (invalidForward) {
+          Serial.println(F(
+            "{\"event_type\":\"ghostseal_error\","
+            "\"reason\":\"recursive_ghostseal_exec_blocked\"}"
+          ));
+        }
+        else if (
+          activeCommand &&
+          !ghostseal_runtime.canTransmit(forwardedRoot.c_str())
+        ) {
+          Serial.print(F(
+            "{\"event_type\":\"ghostseal_exec_denied\","
+            "\"command\":\""
+          ));
+          Serial.print(forwardedCommand);
+          Serial.println(F(
+            "\",\"reason\":\"not_armed\"}"
+          ));
+        }
+        else {
+          Serial.print(F(
+            "{\"event_type\":\"ghostseal_exec_forwarded\","
+            "\"command\":\""
+          ));
+          Serial.print(forwardedCommand);
+          Serial.print(F(
+            "\",\"policy\":\""
+          ));
+          Serial.print(activeCommand ? F("active") : F("standard"));
+          Serial.println(F("\"}"));
+
+          this->runCommand(forwardedCommand);
+        }
+      }
     }
 
     else if (cmd_args.get(1) == "tool") {
@@ -420,7 +492,7 @@ void CommandLine::runCommand(String input) {
     Serial.println(HELP_NMEA_CMD);
     Serial.println(HELP_GPS_POI_CMD);
     Serial.println(HELP_GPS_TRACKER_CMD);
-    
+
     // WiFi sniff/scan
     Serial.println(HELP_EVIL_PORTAL_CMD);
     Serial.println(HELP_KARMA_CMD);
@@ -446,10 +518,10 @@ void CommandLine::runCommand(String input) {
       Serial.println(HELP_WARDRIVEPOI_CMD);
     #endif
     Serial.println(HELP_MAC_TRACK_CMD);
-    
+
     // WiFi attack
     Serial.println(HELP_ATTACK_CMD);
-    
+
     // WiFi Aux
     Serial.println(HELP_INFO_CMD);
     Serial.println(HELP_LIST_AP_CMD_A);
@@ -486,7 +558,7 @@ void CommandLine::runCommand(String input) {
   // Stop Scan
   if (cmd_args.get(0) == STOPSCAN_CMD) {
     int f_arg = this->argSearch(&cmd_args, "-f");
-    
+
     uint8_t old_scan_mode=wifi_scan_obj.currentScanMode;
 
     if (f_arg != -1) {
@@ -609,7 +681,7 @@ void CommandLine::runCommand(String input) {
   else if (cmd_args.get(0) == LED_CMD) {
     int hex_arg = this->argSearch(&cmd_args, "-s");
     int pat_arg = this->argSearch(&cmd_args, "-p");
-    #if defined(PIN) && defined(HAS_NEOPIXEL_LED) 
+    #if defined(PIN) && defined(HAS_NEOPIXEL_LED)
       if (hex_arg != -1) {
         String hexstring = cmd_args.get(hex_arg + 1);
         int number = (int)strtol(&hexstring[1], NULL, 16);
@@ -805,10 +877,10 @@ void CommandLine::runCommand(String input) {
           wifi_scan_obj.StartScan(WIFI_SCAN_EVIL_PORTAL, TFT_MAGENTA);
         }
         else if (et_command == "reset") {
-          
+
         }
         else if (et_command == "ack") {
-          
+
         }
         else if (et_command == "sethtml") {
           String target_html_name = cmd_args.get(cmd_sw + 2);
@@ -881,12 +953,12 @@ void CommandLine::runCommand(String input) {
           return;
         }
       }
-      
+
       if (ch_sw != -1) {
         wifi_scan_obj.set_channel = cmd_args.get(ch_sw + 1).toInt();
         wifi_scan_obj.changeChannel();
         Serial.println("Set channel: " + (String)wifi_scan_obj.set_channel);
-        
+
       }
 
       if (d_sw == -1) {
@@ -901,7 +973,7 @@ void CommandLine::runCommand(String input) {
         Serial.println("Starting PMKID sniff with deauthentication on channel " + (String)wifi_scan_obj.set_channel + ". Stop with " + (String)STOPSCAN_CMD);
         wifi_scan_obj.StartScan(WIFI_SCAN_ACTIVE_EAPOL, TFT_VIOLET);
       }
-    }    
+    }
     // MAC Tracking
     else if (cmd_args.get(0) == MAC_TRACK_CMD) {
       this->startScanFromCLI(WIFI_SCAN_DETECT_FOLLOW, TFT_MAGENTA, "MAC Tracker");
@@ -937,7 +1009,7 @@ void CommandLine::runCommand(String input) {
 	  // Clone MAC for AP
 	  else if (cmd_args.get(0) == MAC_CMD_C) {
       int ap_sw = this->argSearch(&cmd_args, "-a"); // APs
-      
+
       if (ap_sw == -1) {
         return;
       }
@@ -947,7 +1019,7 @@ void CommandLine::runCommand(String input) {
       if ((ap_index < 0) || (ap_index > access_points->size() - 1)) {
         return;
       }
-      
+
       if (ap_sw != -1) {
         #ifdef HAS_SCREEN
           display_obj.clearScreen();
@@ -961,7 +1033,7 @@ void CommandLine::runCommand(String input) {
     // Clone MAC for STA
 	  else if (cmd_args.get(0) == MAC_CMD_D) {
       int cl_sw = this->argSearch(&cmd_args, "-s"); // Stations
-            
+
       if (cl_sw == -1)
         return;
 
@@ -982,7 +1054,7 @@ void CommandLine::runCommand(String input) {
     }
     //// End MAC Address commands    (Added by H4W9_4)
 
-    
+
     //// WiFi attack commands
     // attack
     if (cmd_args.get(0) == ATTACK_CMD) {
@@ -993,12 +1065,12 @@ void CommandLine::runCommand(String input) {
       int src_addr_sw = this->argSearch(&cmd_args, "-s");
       int dst_addr_sw = this->argSearch(&cmd_args, "-d");
       int targ_sw = this->argSearch(&cmd_args, "-c");
-  
+
       if (attack_type_switch == -1)
         return;
       else {
         String attack_type = cmd_args.get(attack_type_switch + 1);
-  
+
         // Branch on attack type
         if (attack_type == ATTACK_TYPE_DEAUTH) {
           // Default to broadcast
@@ -1036,7 +1108,7 @@ void CommandLine::runCommand(String input) {
           // Source addr specified
           else {
             String src_mac_str = cmd_args.get(src_addr_sw + 1);
-            sscanf(src_mac_str.c_str(), "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx", 
+            sscanf(src_mac_str.c_str(), "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx",
               &wifi_scan_obj.src_mac[0], &wifi_scan_obj.src_mac[1], &wifi_scan_obj.src_mac[2], &wifi_scan_obj.src_mac[3], &wifi_scan_obj.src_mac[4], &wifi_scan_obj.src_mac[5]);
 
             #ifdef HAS_SCREEN
@@ -1044,7 +1116,7 @@ void CommandLine::runCommand(String input) {
               menu_function_obj.drawStatusBar();
             #endif
             Serial.println("Starting Manual Deauthentication attack. Stop with " + (String)STOPSCAN_CMD);
-            wifi_scan_obj.StartScan(WIFI_ATTACK_DEAUTH_MANUAL, TFT_RED);            
+            wifi_scan_obj.StartScan(WIFI_ATTACK_DEAUTH_MANUAL, TFT_RED);
           }
         }
         else if (attack_type == ATTACK_TYPE_BM) {
@@ -1306,7 +1378,7 @@ void CommandLine::runCommand(String input) {
         } else {
           wifi_scan_obj.tagPOI(nullptr);
         }
-      } 
+      }
       //else {
       //  Serial.println(F("No active wardrive. Start wardrive first."));
       //}
@@ -1455,7 +1527,7 @@ void CommandLine::runCommand(String input) {
         if (access_point.selected) {
           Serial.println("[" + (String)i + "][CH:" + (String)access_point.channel + "] " + access_point.essid + " " + (String)access_point.rssi + " (selected)");
           count_selected += 1;
-        } 
+        }
         else
           Serial.println("[" + (String)i + "][CH:" + (String)access_point.channel + "] " + access_point.essid + " " + (String)access_point.rssi);
       }
@@ -1479,7 +1551,7 @@ void CommandLine::runCommand(String input) {
         if (ssids->get(i).selected) {
           Serial.println("[" + (String)i + "] " + ssids->get(i).essid + " (selected)");
           count_selected += 1;
-        } 
+        }
         else
           Serial.println("[" + (String)i + "] " + ssids->get(i).essid);
       }
@@ -1541,7 +1613,7 @@ void CommandLine::runCommand(String input) {
       AccessPoint access_point = access_points->get(index);
       Serial.println("Using SSID: " + (String)access_point.essid + " Password: " + (String)password);
       //wifi_scan_obj.currentScanMode = LV_JOIN_WIFI;
-      //wifi_scan_obj.StartScan(LV_JOIN_WIFI, TFT_YELLOW); 
+      //wifi_scan_obj.StartScan(LV_JOIN_WIFI, TFT_YELLOW);
       wifi_scan_obj.joinWiFi(access_point.essid, password, false);
       #ifdef HAS_SCREEN
         #ifdef HAS_MINI_KB
@@ -1642,7 +1714,7 @@ void CommandLine::runCommand(String input) {
     }
     else if (cl_sw != -1) {
       LinkedList<String> sta_index = this->parseCommand(cmd_args.get(cl_sw + 1), ",");
-      
+
       // Select all Stations
       if (cmd_args.get(cl_sw + 1) == "all") {
         for (int i = 0; i < stations->size(); i++) {

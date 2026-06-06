@@ -1,3 +1,8 @@
+// GHOSTSEAL_FORCE_BT_BEGIN
+#ifndef HAS_BT
+#define HAS_BT
+#endif
+// GHOSTSEAL_FORCE_BT_END
 #pragma once
 
 #ifndef configs_h
