@@ -22,3 +22,253 @@ Results:
 Conclusion:
 Firmware command path is working through Ghost Seal for blespam -t sourapple. Phone-side display behavior is not reliable enough to use as the only validation method. BLE runtime needs additional receiver-side validation, such as a BLE scanner or controlled test device.
 
+
+============================================================
+Ghost Seal Architecture / Validation Update
+Date: 2026-06-05
+Branch: ghostseal-command-parity
+============================================================
+
+Current confirmed command model:
+- Native Ghost Seal commands use:
+  ghostseal <native command>
+
+- Original Marauder commands must currently use:
+  ghostseal exec <original Marauder command>
+
+Important:
+- ghostseal attack ... is NOT implemented yet.
+- ghostseal exec attack ... is the current correct compatibility path.
+- Native aliases such as ghostseal attack, ghostseal scan, ghostseal sniff, and ghostseal blespam are planned later but are not complete yet.
+
+Confirmed native Ghost Seal commands:
+- ghostseal
+- ghostseal ping
+- ghostseal identify
+- ghostseal status
+- ghostseal arm <sec>
+- ghostseal disarm
+- ghostseal tool list
+- ghostseal tool status
+- ghostseal tool start <tool>
+- ghostseal tool stop
+- ghostseal exec <marauder command>
+
+Confirmed passive Ghost Seal tools:
+- packet_rate
+- channel_analyzer
+- channel_activity
+- signal_strength
+- ap_sta_scan
+
+Confirmed active gate behavior:
+Commands tested:
+- ghostseal disarm
+- ghostseal exec attack -t test
+- ghostseal arm 60
+- ghostseal exec attack -t test
+- ghostseal disarm
+- ghostseal status
+
+Observed:
+- Disarmed attack command through ghostseal exec was blocked.
+- Runtime produced ghostseal_cmd_blocked for module attack.
+- Exec layer produced ghostseal_exec_denied with reason not_armed.
+- After arming, attack command was forwarded with policy active.
+- Forwarded command reached original Marauder CLI as #attack -t test.
+- No attack ran because test is not a real attack type.
+- Final status showed tool_armed false, tx_permitted false, tx_active false, remaining_ms 0.
+- Final tool status showed running false, scan_mode 0.
+
+Conclusion:
+Ghost Seal active-command authorization works for the attack command family through ghostseal exec.
+
+BLE command-path validation:
+Commands tested:
+- ghostseal arm 60
+- ghostseal exec blespam -t sourapple
+
+Observed:
+- Ghost Seal armed successfully.
+- BLE spam command was classified as active.
+- Command was forwarded with policy active.
+- Original Marauder handler received:
+  #blespam -t sourapple
+- Handler printed:
+  StartingSour Apple attack. Stop with stopscan
+
+Result:
+- Ghost Seal gate: PASS
+- ghostseal exec forwarding: PASS
+- Marauder BLE command route: PASS
+- Phone popup/display: NOT VALIDATED / UNRELIABLE
+
+Conclusion:
+The firmware command path for blespam -t sourapple works through Ghost Seal while armed. Phone-side popup behavior is not a reliable engineering pass/fail test. BLE needs receiver-side validation with a BLE scanner or controlled test device.
+
+Direct bypass validation:
+Commands tested while disarmed:
+- attack -t test
+- blespam -t sourapple
+
+Observed:
+- Raw attack -t test produced no visible Ghost Seal block event.
+- Raw blespam -t sourapple started while Ghost Seal was disarmed.
+- Output showed:
+  StartingSour Apple attack. Stop with stopscan
+- ESP32 crashed shortly after with:
+  Guru Meditation Error: Core 0 panic'ed (InstrFetchProhibited)
+
+Result:
+- ghostseal exec active-command gate works.
+- Raw Marauder BLE command bypassed Ghost Seal authorization.
+- BLE spam path also caused a hard crash / reboot.
+
+Conclusion:
+Direct active Marauder handlers must be patched with ghostseal_runtime.canTransmit() checks. The ghostseal exec gate alone is not enough.
+
+Required direct-handler gates:
+- attack direct handler
+- blespam direct handler
+- evilportal direct handler
+- karma direct handler
+- join direct handler if active network join remains protected
+- pingscan/arpscan/portscan direct handlers if considered active network operations
+- any PMKID/deauth-assisted path that transmits
+
+Immediate direct bypass patch target:
+In CommandLine.cpp, under:
+  if (cmd_args.get(0) == ATTACK_CMD) {
+
+add:
+  if (!ghostseal_runtime.canTransmit("attack_direct")) {
+    return;
+  }
+
+Under:
+  else if (cmd_args.get(0) == BT_SPAM_CMD) {
+
+add:
+  if (!ghostseal_runtime.canTransmit("blespam_direct")) {
+    return;
+  }
+
+Storage architecture finding:
+- ESP32 Ghost Seal hardware currently has no SD card.
+- Final architecture must not depend on ESP32 local SD storage.
+- Logs, payload assets, captures, command history, and future web/payload assets must live on Node 1 Pi Zero 2 W.
+- ESP32 should act as the radio execution board.
+- Node 1 should act as controller, logger, storage brain, and recovery supervisor.
+
+Storage rule:
+If a Marauder feature requires local SD or local payload files, Ghost Seal must not crash or silently fail.
+
+It must either:
+1. request the asset from Node 1 over UART/USB serial, or
+2. return a structured JSON error saying Node 1 remote storage is required.
+
+Future storage status event:
+{
+  "event_type":"ghostseal_storage_status",
+  "local_sd":false,
+  "remote_storage":true,
+  "node1_required":true
+}
+
+Future storage request flow:
+ESP32 Ghost Seal sends:
+{
+  "event_type":"ghostseal_storage_request",
+  "asset":"evilportal/index.html"
+}
+
+Node 1 replies with asset data or a clear error.
+
+Pi Zero 2 W / Ragnar integration decision:
+The Pi Zero 2 W becoming the storage brain does NOT interfere with Ragnar if designed correctly.
+
+Correct Node 1 layout:
+- Ragnar-derived controller = high-level brain
+- ghostseal-bridge service = serial driver / storage bridge / logger / recovery layer
+- ESP32 Ghost Seal = radio execution board
+- Pi local filesystem = logs, payloads, captures, command history, validation logs
+
+Critical design rule:
+Only one service should own the ESP32 serial port.
+
+Bad architecture:
+- Ragnar talks directly to /dev/ttyUSB0
+- logger talks directly to /dev/ttyUSB0
+- dashboard talks directly to /dev/ttyUSB0
+- storage bridge talks directly to /dev/ttyUSB0
+
+Good architecture:
+- ghostseal-bridge owns /dev/ttyUSB0
+- Ragnar talks to ghostseal-bridge
+- dashboard talks to ghostseal-bridge
+- logger/storage is handled by ghostseal-bridge
+
+Recommended Node 1 architecture:
+Ragnar-derived controller
+        |
+        v
+ghostseal-bridge service
+        |
+        v
+USB/UART serial
+        |
+        v
+ESP32 Ghost Seal firmware
+
+Node 1 responsibilities:
+- send commands to Ghost Seal
+- parse JSON replies
+- log all serial output
+- store captures/payloads/assets
+- expose stable API to Ragnar
+- detect ESP32 reboot/crash
+- retry or reset if needed
+- eventually coordinate dual communication with ESP32-C5 supervisor
+
+ESP32-C5 / dual communication note:
+ESP32-C5 can later be used as a supervisor/recovery/secondary communication board.
+
+Possible C5 responsibilities:
+- heartbeat monitoring
+- crash detection
+- reset control for ESP32-S3
+- backup command channel
+- health/status reporting
+- dual serial bridge
+- safe-mode recovery
+
+Important:
+C5 should not be used to hide broken firmware policy. The direct active-command bypass must still be fixed inside Ghost Seal.
+
+Current project status:
+PASS:
+- firmware boots cleanly
+- Ghost Seal banner appears
+- native CLI works
+- status/disarm safe baseline works
+- ghostseal exec forwarding works
+- active command gate works through ghostseal exec
+- BLE blespam command route starts while armed
+- validation logging started
+- README and command reference have been updated
+
+FAIL / PATCH REQUIRED:
+- raw blespam -t sourapple bypasses Ghost Seal while disarmed
+- raw active handlers need direct canTransmit guards
+- BLE spam path caused Guru Meditation crash
+- no-SD architecture needs explicit remote-storage handling
+
+PENDING:
+- direct active handler gating patch
+- BLE crash investigation
+- storage capability reporting
+- Node 1 ghostseal-bridge service
+- remote payload/asset request protocol
+- full Marauder command parity validation
+- friendly native aliases after parity
+- ESP32-C5 supervisor design
