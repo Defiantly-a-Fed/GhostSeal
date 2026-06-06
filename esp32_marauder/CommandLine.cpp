@@ -1058,6 +1058,10 @@ void CommandLine::runCommand(String input) {
     //// WiFi attack commands
     // attack
     if (cmd_args.get(0) == ATTACK_CMD) {
+          if (!ghostseal_runtime.canTransmit("attack_direct")) {
+            return;
+          }
+
       int attack_type_switch = this->argSearch(&cmd_args, "-t"); // Required
       int list_beacon_sw = this->argSearch(&cmd_args, "-l");
       int rand_beacon_sw = this->argSearch(&cmd_args, "-r");
@@ -1285,6 +1289,10 @@ void CommandLine::runCommand(String input) {
       }
     }
     else if (cmd_args.get(0) == BT_SPAM_CMD) {
+          if (!ghostseal_runtime.canTransmit("blespam_direct")) {
+            return;
+          }
+
       int bt_type_sw = this->argSearch(&cmd_args, "-t");
       if (bt_type_sw != -1) {
         String bt_type = cmd_args.get(bt_type_sw + 1);
