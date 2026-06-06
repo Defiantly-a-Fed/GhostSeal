@@ -272,3 +272,68 @@ PENDING:
 - full Marauder command parity validation
 - friendly native aliases after parity
 - ESP32-C5 supervisor design
+
+============================================================
+Node 1 Serial Bridge Validation — PASS
+Date: 2026-06-05
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Username: cyberdeck
+- Host prompt observed: cyberdeck@ghostseal-node1
+
+Serial device result:
+- /dev/ttyUSB0 failed because the ESP32 was not present on that port.
+- /dev/ttyACM0 opened successfully.
+- Baud rate used: 115200
+
+Script tested:
+~/ghostseal-node1/ghostseal_serial_test.py
+
+Commands sent from Node 1:
+ghostseal ping
+ghostseal identify
+ghostseal status
+ghostseal exec info
+
+Observed results:
+- Node 1 opened Ghost Seal serial on /dev/ttyACM0.
+- Node 1 captured the ESP32 Marauder / Ghost Seal boot banner.
+- ghostseal ping returned:
+  {"event_type":"ghostseal_ping","response":"pong"}
+
+- ghostseal identify returned:
+  {"event_type":"ghostseal_identity","device":"ghostseal","node_id":"ghostseal-01","transport":"uart"}
+
+- ghostseal status returned:
+  {"event_type":"ghostseal_status","quiet_boot":true,"uart_first":true,"tool_armed":false,"tx_permitted":false,"tx_active":false,"remaining_ms":0}
+  {"event_type":"ghostseal_tool_status","running":false,"scan_mode":0}
+
+- ghostseal exec info forwarded correctly and returned Marauder firmware info:
+  Firmware: Marauder
+  Version: v1.12.2
+  Hardware: ESP32
+  ESP-IDF: v4.4.7-dirty
+  WSL Bypass: disabled
+  Station MAC: 90:70:69:12:29:64
+  AP MAC: 92:70:69:12:29:64
+
+Conclusion:
+Node 1 Pi Zero 2 W successfully communicated with Ghost Seal over USB serial. Native Ghost Seal JSON commands worked from Node 1, and original Marauder command forwarding through ghostseal exec also worked from Node 1.
+
+Status:
+PASS — Node 1 serial bridge proof completed.
+
+Notes:
+- The Pi currently creates a local runtime log under ~/ghostseal-node1/logs, but the official project record is this repository validation log.
+- Future ghostseal-bridge service should still keep local runtime logs on Node 1 during operation, but milestones and validation results should be copied into the repo docs and committed.
+- A partial boot/serial fragment was observed:
+  > #{"event_type":"g
+  This is not currently blocking, but should be watched during bridge development.
+
+Next:
+- Update the Node 1 script to auto-detect /dev/ttyACM0 or /dev/ttyUSB0.
+- Build ghostseal-bridge v0.1 as the single owner of the ESP32 serial port.
+- Keep Ragnar above ghostseal-bridge instead of letting multiple programs fight over serial.
