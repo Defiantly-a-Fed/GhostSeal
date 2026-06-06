@@ -492,3 +492,81 @@ Result:
 
 Conclusion:
 Direct raw Marauder active-command bypass has been patched for attack and blespam. Both ghostseal exec active commands and raw active handlers now require Ghost Seal authorization.
+
+============================================================
+ghostseal-bridge v0.1.1 Command Wrapper Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Host: ghostseal-node1
+- User: cyberdeck
+
+Bridge version:
+- ghostseal-bridge v0.1.1
+
+New bridge commands validated:
+- ghostseal-bridge arm 60
+- ghostseal-bridge status
+- ghostseal-bridge disarm
+- ghostseal-bridge tool list
+- ghostseal-bridge tool status
+- ghostseal-bridge tool start packet_rate
+- ghostseal-bridge tool stop
+
+Observed:
+- ghostseal-bridge help now exposes:
+  ping, identify, status, info, stop, disarm, arm, tool, exec
+
+- ghostseal-bridge arm 60 sent:
+  ghostseal arm 60
+
+- Ghost Seal returned:
+  {""event_type"":""ghostseal_tool_armed"",""duration_sec"":60,""tx_permitted"":true,""tx_active"":false}
+
+- ghostseal-bridge status confirmed:
+  tool_armed true
+  tx_permitted true
+  tx_active false
+  running false
+  scan_mode 0
+
+- ghostseal-bridge disarm returned:
+  {""event_type"":""ghostseal_tool_disarmed"",""tx_permitted"":false,""tx_active"":false}
+
+- ghostseal-bridge tool list returned passive tools:
+  packet_rate
+  channel_analyzer
+  channel_activity
+  signal_strength
+  ap_sta_scan
+
+- ghostseal-bridge tool start packet_rate returned:
+  {""event_type"":""ghostseal_tool_started"",""tool"":""packet_rate"",""mode"":""passive"",""scan_mode"":48}
+
+- ghostseal-bridge tool status confirmed:
+  running true
+  scan_mode 48
+
+- ghostseal-bridge tool stop returned:
+  {""event_type"":""ghostseal_tool_stopped"",""previous_scan_mode"":48}
+
+- Final ghostseal-bridge status confirmed:
+  tool_armed false
+  tx_permitted false
+  tx_active false
+  running false
+  scan_mode 0
+
+Result:
+PASS
+
+Conclusion:
+ghostseal-bridge v0.1.1 successfully exposes the current Ghost Seal native command set from Node 1, including arm/disarm and passive tool control. Node 1 can now control Ghost Seal without manual Arduino Serial Monitor input for the validated command families.
+
+Next:
+- Commit the updated ghostseal_bridge.py into the repository under a Node 1 tools/scripts folder.
+- Begin ghostseal-bridge v0.2 design as a persistent service.
+- v0.2 should open serial once, avoid ESP32 reset per command, manage a command queue, and become the only owner of /dev/ttyACM0.
