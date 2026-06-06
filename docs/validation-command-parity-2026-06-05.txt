@@ -670,3 +670,57 @@ Current final state:
 Conclusion:
 ghostseal-bridge v0.1.1 is stable enough to continue command parity validation. Persistent v0.2 service work should wait until additional command categories are validated.
 
+
+## ghostseal-bridge v0.1.1 command parity validation block 2 - 2026-06-06
+
+Environment:
+- Node: ghostseal-node1
+- User: cyberdeck
+- Serial port: /dev/ttyACM0
+- Baud: 115200
+- Branch: ghostseal-command-parity
+- Bridge: ghostseal-bridge v0.1.1
+
+Validated commands:
+- ghostseal-bridge tool list
+- ghostseal-bridge tool status
+- ghostseal-bridge tool start packet_rate
+- ghostseal-bridge status
+- ghostseal-bridge stop
+- ghostseal-bridge disarm
+- ghostseal-bridge exec blespam
+
+Results:
+- PASS: tool list returned passive tool manifest.
+- PASS: passive tools listed: packet_rate, channel_analyzer, channel_activity, signal_strength, ap_sta_scan.
+- PASS: initial tool status returned running=false and scan_mode=0.
+- PASS: packet_rate started through bridge.
+- PASS: packet_rate reported running=true.
+- PASS: packet_rate used scan_mode=48 in this firmware build.
+- PASS: status during packet_rate showed Ghost Seal remained disarmed.
+- PASS: tx_permitted remained false during passive packet_rate tool operation.
+- PASS: tx_active remained false during passive packet_rate tool operation.
+- PASS: global stop command stopped packet_rate and reset scan_mode to 0.
+- PASS: disarm command returned tx_permitted=false and tx_active=false.
+- PASS: blespam was blocked while disarmed.
+- PASS: blocked blespam emitted ghostseal_cmd_blocked with module=blespam and reason=tool_not_armed.
+- PASS: blocked blespam emitted ghostseal_exec_denied with command=blespam and reason=not_armed.
+- PASS: status after blocked blespam confirmed safe state.
+
+Final safe state:
+- tool_armed=false
+- tx_permitted=false
+- tx_active=false
+- remaining_ms=0
+- running=false
+- scan_mode=0
+
+Observed notes:
+- packet_rate scan_mode is 48 in this firmware build.
+- Earlier scan_mode=101 was not packet_rate in this validation block.
+- v0.1.1 global cleanup path is ghostseal-bridge stop, which forwards stopscan.
+- The raw ghostseal exec path did not bypass authorization for blespam.
+
+Conclusion:
+Command parity validation block 2 passed. ghostseal-bridge v0.1.1 can list passive tools, start packet_rate, report tool state, clean up with stopscan, and block active blespam execution while disarmed.
+
