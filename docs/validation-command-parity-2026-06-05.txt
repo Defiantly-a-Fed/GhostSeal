@@ -570,3 +570,103 @@ Next:
 - Commit the updated ghostseal_bridge.py into the repository under a Node 1 tools/scripts folder.
 - Begin ghostseal-bridge v0.2 design as a persistent service.
 - v0.2 should open serial once, avoid ESP32 reset per command, manage a command queue, and become the only owner of /dev/ttyACM0.
+
+============================================================
+ghostseal-bridge v0.1.1 Command Wrapper Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Host: ghostseal-node1
+- User: cyberdeck
+
+Bridge version:
+- ghostseal-bridge v0.1.1
+
+New bridge commands validated:
+- ghostseal-bridge arm 60
+- ghostseal-bridge status
+- ghostseal-bridge disarm
+- ghostseal-bridge tool list
+- ghostseal-bridge tool status
+- ghostseal-bridge tool start packet_rate
+- ghostseal-bridge tool stop
+
+Observed:
+- ghostseal-bridge help now exposes ping, identify, status, info, stop, disarm, arm, tool, and exec.
+- ghostseal-bridge arm 60 sent ghostseal arm 60.
+- Ghost Seal returned tx_permitted true and tx_active false.
+- ghostseal-bridge status confirmed tool_armed true, tx_permitted true, tx_active false, running false, scan_mode 0.
+- ghostseal-bridge disarm returned tx_permitted false and tx_active false.
+- ghostseal-bridge tool list returned packet_rate, channel_analyzer, channel_activity, signal_strength, and ap_sta_scan.
+- ghostseal-bridge tool start packet_rate started passive scan_mode 48.
+- ghostseal-bridge tool status confirmed running true and scan_mode 48.
+- ghostseal-bridge tool stop stopped scan_mode 48.
+- Final ghostseal-bridge status confirmed tool_armed false, tx_permitted false, tx_active false, running false, scan_mode 0.
+
+Result:
+PASS
+
+Conclusion:
+ghostseal-bridge v0.1.1 successfully exposes the current Ghost Seal native command set from Node 1, including arm/disarm and passive tool control. Node 1 can now control Ghost Seal without manual Arduino Serial Monitor input for the validated command families.
+
+Next:
+- Commit the updated ghostseal_bridge.py into the repository under node1/.
+- Begin ghostseal-bridge v0.2 design as a persistent service.
+- v0.2 should open serial once, avoid ESP32 reset per command, manage a command queue, and become the only owner of /dev/ttyACM0.
+
+## ghostseal-bridge v0.1.1 stability validation - 2026-06-06
+
+Environment:
+- Node: ghostseal-node1
+- User: cyberdeck
+- Serial port: /dev/ttyACM0
+- Baud: 115200
+- Branch: ghostseal-command-parity
+- Bridge: ghostseal-bridge v0.1.1
+
+Validated commands:
+- ghostseal-bridge ping
+- ghostseal-bridge identify
+- ghostseal-bridge status
+- ghostseal-bridge info
+- ghostseal-bridge arm 5
+- ghostseal-bridge arm 15
+- ghostseal-bridge disarm
+- ghostseal-bridge stop
+- ghostseal-bridge exec definitelynotreal
+
+Results:
+- PASS: ping returned ghostseal_ping / pong.
+- PASS: identify returned ghostseal_identity with node_id ghostseal-01.
+- PASS: status returned machine-readable ghostseal_status and ghostseal_tool_status JSON.
+- PASS: info forwarded through ghostseal exec and returned Marauder firmware info.
+- PASS: 10x repeated status loop did not lock the serial port or crash the bridge.
+- PASS: active authorization remained false during normal status tests.
+- PASS: 5x arm/disarm loop successfully armed and returned to safe state each time.
+- PASS: 15-second arm test showed visible armed window with tx_permitted=true and remaining_ms above 0.
+- PASS: timeout/disarm behavior returned tx_permitted=false and tx_active=false.
+- PASS: global stop command stopped passive scan state and reset scan_mode to 0.
+- PASS: bad forwarded command did not crash firmware or bridge.
+- PASS: status after bad forwarded command confirmed safe state.
+
+Observed notes:
+- First bridge connection may include ESP32/Marauder boot banner and partial startup UART output. Command still completed successfully.
+- One status loop response showed truncated UART output, but following status calls recovered normally.
+- v0.1.1 parser does not accept "ghostseal-bridge tool stop packet_rate"; current valid cleanup path is "ghostseal-bridge stop".
+- During 5-second arm loop, status usually observed around 900ms remaining because bridge command overhead consumed most of the short arm window.
+- Bad forwarded command currently returns to prompt without a structured unknown_command event.
+
+Current final state:
+- tool_armed=false
+- tx_permitted=false
+- tx_active=false
+- remaining_ms=0
+- tool running=false
+- scan_mode=0
+
+Conclusion:
+ghostseal-bridge v0.1.1 is stable enough to continue command parity validation. Persistent v0.2 service work should wait until additional command categories are validated.
+
