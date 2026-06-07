@@ -143,3 +143,5 @@ See [GHOST_SEAL_COMMANDS.md](GHOST_SEAL_COMMANDS.md) for the complete Ghost Seal
     tx_permitted = Ghost Seal is armed and active commands are allowed
     tx_active    = a transmit-capable operation is currently running
     ```
+## Documentation Updates
+For detailed UART backbone planning, refer to [uart-backbone-plan.md](docs/uart-backbone-plan.md). For a matrix of command parity status across all Marauder commands, see [ghostseal-command-parity-matrix.md](docs/ghostseal-command-parity-matrix.md).
