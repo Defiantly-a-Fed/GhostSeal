@@ -822,3 +822,92 @@ Final safe state:
 Conclusion:
 Active gate behavior is validated for blespam through ghostseal-bridge v0.1.1. The same command path is denied while disarmed and forwarded only while armed. Cleanup returns Ghost Seal to a safe state.
 
+
+## ghostseal-bridge v0.1.1 isolated active command validation - 2026-06-06
+
+Environment:
+- Node: ghostseal-node1
+- User: cyberdeck
+- Serial port: /dev/ttyACM0
+- Baud: 115200
+- Branch: ghostseal-command-parity
+- Bridge: ghostseal-bridge v0.1.1
+- Test condition: safe controlled environment with controlled defensive devices
+
+Validation method:
+Each active command was tested from a clean safe state using:
+- disarm
+- status
+- arm 30
+- ghostseal exec <active command>
+- short observation window
+- status
+- stopscan via ghostseal-bridge stop
+- disarm
+- final status
+
+General expected behavior:
+- Commands must not run while disarmed.
+- Commands may forward only while armed.
+- Forwarded active commands must use policy=active.
+- stopscan and disarm must return the device to safe state.
+- Final state must show tool_armed=false, tx_permitted=false, tx_active=false, running=false, and scan_mode=0.
+
+Validated active commands:
+- evilportal -c start
+- attack -t beacon
+- attack -t deauth
+- attack -t probe
+- attack -t rickroll
+- blespam -t all
+
+Results:
+- PASS: evilportal -c start forwarded with policy=active while armed.
+- PASS: evilportal -c start entered running=true with scan_mode=30.
+- PASS: evilportal -c start stopped cleanly with stopscan and returned to safe state.
+- NOTE: evilportal -c start reported missing /ap.config.txt, so full portal asset runtime requires config/asset delivery.
+
+- PASS: attack -t beacon forwarded with policy=active while armed.
+- PASS: attack -t beacon was not denied as not_armed and was not blocked as tool_not_armed.
+- NOTE: attack -t beacon did not enter running mode from clean state; status remained running=false and scan_mode=0. Runtime likely requires selected AP/SSID/list state.
+
+- PASS: attack -t deauth forwarded with policy=active while armed.
+- PASS: attack -t deauth returned Marauder runtime output.
+- NOTE: attack -t deauth reported no selected targets. Runtime did not enter running mode because target selection state was missing.
+
+- PASS: attack -t probe forwarded with policy=active while armed.
+- PASS: attack -t probe returned Marauder runtime output.
+- NOTE: attack -t probe reported no selected targets. Runtime did not enter running mode because target selection state was missing.
+
+- PASS: attack -t rickroll forwarded with policy=active while armed.
+- PASS: attack -t rickroll entered active runtime.
+- PASS: attack -t rickroll reported running=true with scan_mode=9.
+- PASS: attack -t rickroll stopped cleanly and returned to safe state.
+
+- PASS: blespam -t all forwarded with policy=active while armed.
+- PASS: blespam -t all entered active runtime.
+- PASS: blespam -t all reported running=true with scan_mode=38.
+- PASS: blespam -t all stopped cleanly and returned to safe state.
+
+Observed active scan mode map:
+- evilportal -c start: 30
+- attack -t rickroll: 9
+- blespam -t all: 38
+
+Observed target/config-dependent commands:
+- evilportal -c start requires /ap.config.txt for full portal runtime.
+- attack -t beacon likely requires AP/SSID/list state to enter full runtime.
+- attack -t deauth requires selected targets.
+- attack -t probe requires selected targets.
+
+Final safe state after active validation:
+- tool_armed=false
+- tx_permitted=false
+- tx_active=false
+- remaining_ms=0
+- running=false
+- scan_mode=0
+
+Conclusion:
+Isolated active command validation passed for Ghost Seal bridge v0.1.1. Active commands were forwarded only while armed, used policy=active, remained controllable through the bridge, and returned to safe state through stopscan and disarm. Commands requiring selected targets or config assets correctly exposed their runtime dependency instead of breaking the bridge.
+
