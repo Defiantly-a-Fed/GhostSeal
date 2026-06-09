@@ -1,0 +1,37 @@
+{
+  "node_id": "ghostseal-node1",
+  "node_name": "Ghost Seal Node 1",
+  "node_type": "wifi_ble_command_node",
+  "project": "SPECTRUM SEALS",
+  "role": "ragnar_like_edge_controller",
+  "controller": {
+    "host": "raspberry_pi_zero_2_w",
+    "user": "cyberdeck",
+    "agent": "node1-agent.service",
+    "wrapper": "ghostseal-node1"
+  },
+  "device_links": [
+    {
+      "device": "ghostseal_esp32",
+      "transport": "uart",
+      "port": "/dev/serial0",
+      "baud": 115200,
+      "purpose": "command_and_event_bridge"
+    }
+  ],
+  "capabilities": {
+    "status": true,
+    "identify": true,
+    "ping": true,
+    "exec_original_marauder_commands": true,
+    "passive_tools": true,
+    "active_capable": true,
+    "arm_disarm_gate": true,
+    "structured_uart_events": true,
+    "local_logs": true
+  },
+  "state_model": {
+    "tx_permitted": "true only while Ghost Seal is armed",
+    "tx_active": "true only while an active/transmitting module is actually running"
+  }
+}

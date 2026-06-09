@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "node": "ghostseal-node1",
+  "time": "2026-06-09T20:27:58.293171+00:00",
+  "request": {
+    "action": "status"
+  },
+  "result": {
+    "ok": true,
+    "returncode": 0,
+    "argv": [
+      "ghostseal-bridge",
+      "status"
+    ],
+    "stdout": "[ghostseal-bridge] port=/dev/serial0 baud=115200\n[ghostseal-bridge] command=ghostseal status\n[ghostseal-bridge] log=/home/cyberdeck/ghostseal-node1/logs/ghostseal_bridge_20260609_132754.log\n>>> ghostseal status\n#ghostseal status\n{\"event_type\":\"ghostseal_status\",\"quiet_boot\":true,\"uart_first\":true,\"tool_armed\":false,\"tx_permitted\":false,\"tx_active\":false,\"remaining_ms\":0}\n{\"event_type\":\"ghostseal_tool_status\",\"running\":false,\"scan_mode\":0}\n>\n",
+    "stderr": ""
+  }
+}
