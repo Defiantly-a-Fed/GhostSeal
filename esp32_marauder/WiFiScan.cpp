@@ -2112,8 +2112,10 @@ void WiFiScan::displayTargetFilter() {
       display_obj.tft.setTextColor(TFT_WHITE, TFT_BLACK);
       for (int i = 0; i < access_points->size(); i++) {
         AccessPoint access_point = access_points->get(i);
-        if (access_point.selected)
-          display_obj.showCenterText("CH: " + (String)access_point.channel + " " + access_point.essid, display_obj.tft.getCursorY(), true);
+        if (access_point.selected) {
+          String msg_str = "CH: " + (String)access_point.channel + " " + access_point.essid;
+          display_obj.showCenterText(msg_str.c_str(), display_obj.tft.getCursorY(), true);
+        }
       }
     } else {
       display_obj.tft.setTextColor(TFT_RED, TFT_BLACK);
@@ -3945,7 +3947,7 @@ void WiFiScan::RunInfo() {
       #endif
       Serial.println(text_table4[34]);
     }
-  #endif
+  #endif  // HAS_BATTERY
   
   if (this->wifi_connected)
       showNetworkInfo();
@@ -4072,6 +4074,10 @@ void WiFiScan::RunPacketMonitor(uint8_t scan_mode, uint16_t color) {
   esp_wifi_set_promiscuous(true);
   esp_wifi_set_promiscuous_filter(&filt);
   esp_wifi_set_promiscuous_rx_cb(&wifiSnifferCallback);*/
+  #ifdef HAS_DUAL_BAND
+    dual_band_channel_index = 0;
+    set_channel = dual_band_channels[0];
+  #endif
   this->changeChannel(this->set_channel);
   //esp_wifi_set_channel(set_channel, WIFI_SECOND_CHAN_NONE);
   this->wifi_initialized = true;
@@ -4265,6 +4271,10 @@ void WiFiScan::executeBLESpam(EBLEPayloadType type) {
     if (type == Apple2) {
       this->setBaseMacAddress(macAddr);
       NimBLEDevice::init("");
+      #ifdef HAS_NIMBLE_2
+        if (!NimBLEDevice::setPower(20))
+          Serial.println("Failed to set NimBLE output power");
+      #endif
       NimBLEServer *pServer = NimBLEDevice::createServer();
 
       pAdvertising = pServer->getAdvertising();
@@ -4300,6 +4310,10 @@ void WiFiScan::executeBLESpam(EBLEPayloadType type) {
         this->setBaseMacAddress(macAddr);
 
         NimBLEDevice::init("");
+        #ifdef HAS_NIMBLE_2
+          if (!NimBLEDevice::setPower(20))
+            Serial.println("Failed to set NimBLE output power");
+        #endif
         NimBLEServer *pServer = NimBLEDevice::createServer();
 
         pAdvertising = pServer->getAdvertising();
@@ -4336,6 +4350,11 @@ void WiFiScan::executeBLESpam(EBLEPayloadType type) {
 
           NimBLEDevice::init("");
 
+          #ifdef HAS_NIMBLE_2
+            if (!NimBLEDevice::setPower(20))
+              Serial.println("Failed to set NimBLE output power");
+          #endif
+
           NimBLEServer *pServer = NimBLEDevice::createServer();
 
           pAdvertising = pServer->getAdvertising();
@@ -4362,6 +4381,11 @@ void WiFiScan::executeBLESpam(EBLEPayloadType type) {
       this->setBaseMacAddress(macAddr);
 
       NimBLEDevice::init("");
+
+      #ifdef HAS_NIMBLE_2
+        if (!NimBLEDevice::setPower(20))
+          Serial.println("Failed to set NimBLE output power");
+      #endif
 
       NimBLEServer *pServer = NimBLEDevice::createServer();
 
@@ -5260,6 +5284,11 @@ void WiFiScan::RunProbeScan(uint8_t scan_mode, uint16_t color) {
 void WiFiScan::RunSourApple(uint8_t scan_mode, uint16_t color) {
   #ifdef HAS_BT
     NimBLEDevice::init("");
+
+    #ifdef HAS_NIMBLE_2
+      if (!NimBLEDevice::setPower(20))
+        Serial.println("Failed to set NimBLE output power");
+    #endif
     NimBLEServer *pServer = NimBLEDevice::createServer();
 
     pAdvertising = pServer->getAdvertising();
@@ -8809,8 +8838,14 @@ bool WiFiScan::filterActive() {
   
           // Channel - button pressed
           else if (b == CHAN_MINUS_INDEX) {
+            #ifndef HAS_DUAL_BAND
             if (set_channel > 1) {
               set_channel--;
+            #else
+            if (dual_band_channel_index > 0) {
+              dual_band_channel_index--;
+              set_channel = dual_band_channels[dual_band_channel_index];
+            #endif
               delay(70);
               display_obj.tft.fillRect(127, 0, 193, 28, TFT_BLACK);
               display_obj.tftDrawXScaleButtons(x_scale);
@@ -8824,8 +8859,14 @@ bool WiFiScan::filterActive() {
   
           // Channel + button pressed
           else if (b == CHAN_PLUS_INDEX) {
+            #ifndef HAS_DUAL_BAND
             if (set_channel < MAX_CHANNEL) {
               set_channel++;
+            #else
+            if (dual_band_channel_index < (DUAL_BAND_CHANNELS - 1)) {
+              dual_band_channel_index++;
+              set_channel = dual_band_channels[dual_band_channel_index];
+            #endif
               delay(70);
               display_obj.tft.fillRect(127, 0, 193, 28, TFT_BLACK);
               display_obj.tftDrawXScaleButtons(x_scale);
@@ -9810,8 +9851,8 @@ void WiFiScan::displayTransmitRate() {
     displayString2.concat(" ");
   #ifdef HAS_SCREEN
     display_obj.tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    display_obj.showCenterText(displayString2, TFT_HEIGHT / 2);
-    display_obj.showCenterText(displayString, TFT_HEIGHT / 2);
+    display_obj.showCenterText(displayString2.c_str(), TFT_HEIGHT / 2);
+    display_obj.showCenterText(displayString.c_str(), TFT_HEIGHT / 2);
   #endif
 }
 
@@ -10082,8 +10123,8 @@ void WiFiScan::main(uint32_t currentTime)
           displayString2.concat(" ");
         #ifdef HAS_SCREEN
           display_obj.tft.setTextColor(TFT_GREEN, TFT_BLACK);
-          display_obj.showCenterText(displayString2, TFT_HEIGHT / 2);
-          display_obj.showCenterText(displayString, TFT_HEIGHT / 2);
+          display_obj.showCenterText(displayString2.c_str(), TFT_HEIGHT / 2);
+          display_obj.showCenterText(displayString.c_str(), TFT_HEIGHT / 2);
         #endif
       }
 
