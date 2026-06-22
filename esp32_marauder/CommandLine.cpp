@@ -209,6 +209,14 @@ void CommandLine::startScanFromCLI(int scan_mode, uint16_t color, String scan_na
   wifi_scan_obj.StartScan(scan_mode, color);
 }
 
+static float ghostsealReadChipTempC() {
+#if defined(ESP32)
+    return temperatureRead();
+#else
+    return -999.0f;
+#endif
+}
+
 void CommandLine::runCommand(String input) {
   if (input == "") return;
 
@@ -255,6 +263,14 @@ void CommandLine::runCommand(String input) {
         "\"node_id\":\"ghostseal-01\","
         "\"transport\":\"uart\"}"
       ));
+    }
+    
+    else if (cmd_args.get(1) == "temp") {
+      float chipTempC = ghostsealReadChipTempC();
+
+      Serial.print(F("{\"event_type\":\"ghostseal_temp\",\"chip_temp_c\":"));
+      Serial.print(chipTempC, 2);
+      Serial.println(F(",\"source\":\"esp32_internal\"}"));
     }
 
     else if (cmd_args.get(1) == "status") {
