@@ -1,0 +1,13 @@
+[Unit]
+Description=Ghost Seal bridge status check
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/ghostseal/node1_bridge
+ExecStart=/opt/ghostseal/node1_bridge/.venv/bin/python /opt/ghostseal/node1_bridge/ghostseal_bridge.py --port /dev/ttyACM0 status
+User=cyberdeck
+Group=cyberdeck
+
+[Install]
+WantedBy=multi-user.target
