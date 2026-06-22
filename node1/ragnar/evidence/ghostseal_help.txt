@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "node": "ghostseal-node1",
+  "time": "2026-06-09T20:28:04.612723+00:00",
+  "request": {
+    "action": "exec",
+    "command": "help"
+  },
+  "result": {
+    "ok": true,
+    "returncode": 0,
+    "argv": [
+      "ghostseal-bridge",
+      "exec",
+      "help"
+    ],
+    "stdout": "[ghostseal-bridge] port=/dev/serial0 baud=115200\n[ghostseal-bridge] command=ghostseal exec help\n[ghostseal-bridge] log=/home/cyberdeck/ghostseal-node1/logs/ghostseal_bridge_20260609_132758.log\n>>> ghostseal exec help\n#ghostseal exec help\n{\"event_type\":\"ghostseal_exec_forwarded\",\"command\":\"help\",\"policy\":\"standard\"}\n#help\n============ Commands ============\nchannel [-s <channel>]\nsettings [-s <setting> enable/disable>]/[-r]\nclearlist -a/-c/-s\nreboot\nupdate -s/-w\nls <directory>\nled -s <hex color>/-p <rainbow>\ngpsdata\ngps [-t] [-g] <fix/sat/lon/lat/alt/date/accuracy/text/nmea>\n[-n] <native/all/gps/glonass/galileo/navic/qzss/beidou>\n[-b = use BD vs GB for beidou]\nnmea\ngpspoi -s/-m/-e\ngpstracker -c <start/stop>\nevilportal [-c start [-w html.html]/sethtml <html.html>]\nkarma -p <index>\npacketcount\npingscan\narpscan [-f]\nportscan [-a -t <ip index>]/[-s <ssh/telnet/dns/http/smtp/https/rdp>]\nsigmon\nscanall\nsniffraw\nsniffbeacon\nsniffprobe\nsniffpwn\nsniffpinescan\nsniffmultissid\nsniffdeauth\nsniffpmkid [-c <channel>][-d][-l]\nsniffsae\nstopscan [-f]\nmactrack\nattack -t <quiet/csa/sae/beacon [-l/-r/-a]/deauth [-c]/[-s <src mac>] [-d <dst mac>]/probe/rickroll/badmsg [-c]/sleep [-c]>\ninfo [-a <index>]\nlist -s\nlist -a\nlist -c\nlist -t\nlist -i\nlist -p\nselect -a/-s/-c <index (comma separated)>/-f \"equals <String> or contains <String>\"\nssid -a [-g <count>/-n <name>]\nssid -r <index>\nsave -a/-s\nload -a/-s\njoin -a <index> -p <password>/-s\nrandapmac\nrandstamac\ncloneapmac [-a <index>]\nclonestamac [-s <index>]\nadd -a -b <mac> [-ch <channel>] [-e <ssid>]\nadd -c -b <mac> -ap <ap_index>\nsniffbt [-t] <airtag/flipper/flock/meta>\nblespam -t <sourapple/applejuice/google/samsung/windows/flipper/all>\nspoofat -t <index>\nsniffskim\nbrightness [-c cycle] [-s <0-9>]\n==================================\n>\n",
+    "stderr": ""
+  }
+}

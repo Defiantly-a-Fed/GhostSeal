@@ -1,0 +1,913 @@
+
+BLE Active Command Validation — PARTIAL PASS
+
+Commands tested:
+ghostseal arm 60
+ghostseal exec blespam -t sourapple
+
+Observed output:
+{"event_type":"ghostseal_tool_armed","duration_sec":60,"tx_permitted":true,"tx_active":false}
+{"event_type":"ghostseal_exec_forwarded","command":"blespam -t sourapple","policy":"active"}
+#blespam -t sourapple
+StartingSour Apple attack. Stop with stopscan
+
+Results:
+- Ghost Seal armed successfully.
+- BLE spam command was classified as an active command.
+- Command was forwarded only while armed.
+- Original Marauder blespam handler received the command.
+- Handler reported Sour Apple attack start.
+- Phone did not display the expected popup.
+
+Conclusion:
+Firmware command path is working through Ghost Seal for blespam -t sourapple. Phone-side display behavior is not reliable enough to use as the only validation method. BLE runtime needs additional receiver-side validation, such as a BLE scanner or controlled test device.
+
+
+============================================================
+Ghost Seal Architecture / Validation Update
+Date: 2026-06-05
+Branch: ghostseal-command-parity
+============================================================
+
+Current confirmed command model:
+- Native Ghost Seal commands use:
+  ghostseal <native command>
+
+- Original Marauder commands must currently use:
+  ghostseal exec <original Marauder command>
+
+Important:
+- ghostseal attack ... is NOT implemented yet.
+- ghostseal exec attack ... is the current correct compatibility path.
+- Native aliases such as ghostseal attack, ghostseal scan, ghostseal sniff, and ghostseal blespam are planned later but are not complete yet.
+
+Confirmed native Ghost Seal commands:
+- ghostseal
+- ghostseal ping
+- ghostseal identify
+- ghostseal status
+- ghostseal arm <sec>
+- ghostseal disarm
+- ghostseal tool list
+- ghostseal tool status
+- ghostseal tool start <tool>
+- ghostseal tool stop
+- ghostseal exec <marauder command>
+
+Confirmed passive Ghost Seal tools:
+- packet_rate
+- channel_analyzer
+- channel_activity
+- signal_strength
+- ap_sta_scan
+
+Confirmed active gate behavior:
+Commands tested:
+- ghostseal disarm
+- ghostseal exec attack -t test
+- ghostseal arm 60
+- ghostseal exec attack -t test
+- ghostseal disarm
+- ghostseal status
+
+Observed:
+- Disarmed attack command through ghostseal exec was blocked.
+- Runtime produced ghostseal_cmd_blocked for module attack.
+- Exec layer produced ghostseal_exec_denied with reason not_armed.
+- After arming, attack command was forwarded with policy active.
+- Forwarded command reached original Marauder CLI as #attack -t test.
+- No attack ran because test is not a real attack type.
+- Final status showed tool_armed false, tx_permitted false, tx_active false, remaining_ms 0.
+- Final tool status showed running false, scan_mode 0.
+
+Conclusion:
+Ghost Seal active-command authorization works for the attack command family through ghostseal exec.
+
+BLE command-path validation:
+Commands tested:
+- ghostseal arm 60
+- ghostseal exec blespam -t sourapple
+
+Observed:
+- Ghost Seal armed successfully.
+- BLE spam command was classified as active.
+- Command was forwarded with policy active.
+- Original Marauder handler received:
+  #blespam -t sourapple
+- Handler printed:
+  StartingSour Apple attack. Stop with stopscan
+
+Result:
+- Ghost Seal gate: PASS
+- ghostseal exec forwarding: PASS
+- Marauder BLE command route: PASS
+- Phone popup/display: NOT VALIDATED / UNRELIABLE
+
+Conclusion:
+The firmware command path for blespam -t sourapple works through Ghost Seal while armed. Phone-side popup behavior is not a reliable engineering pass/fail test. BLE needs receiver-side validation with a BLE scanner or controlled test device.
+
+Direct bypass validation:
+Commands tested while disarmed:
+- attack -t test
+- blespam -t sourapple
+
+Observed:
+- Raw attack -t test produced no visible Ghost Seal block event.
+- Raw blespam -t sourapple started while Ghost Seal was disarmed.
+- Output showed:
+  StartingSour Apple attack. Stop with stopscan
+- ESP32 crashed shortly after with:
+  Guru Meditation Error: Core 0 panic'ed (InstrFetchProhibited)
+
+Result:
+- ghostseal exec active-command gate works.
+- Raw Marauder BLE command bypassed Ghost Seal authorization.
+- BLE spam path also caused a hard crash / reboot.
+
+Conclusion:
+Direct active Marauder handlers must be patched with ghostseal_runtime.canTransmit() checks. The ghostseal exec gate alone is not enough.
+
+Required direct-handler gates:
+- attack direct handler
+- blespam direct handler
+- evilportal direct handler
+- karma direct handler
+- join direct handler if active network join remains protected
+- pingscan/arpscan/portscan direct handlers if considered active network operations
+- any PMKID/deauth-assisted path that transmits
+
+Immediate direct bypass patch target:
+In CommandLine.cpp, under:
+  if (cmd_args.get(0) == ATTACK_CMD) {
+
+add:
+  if (!ghostseal_runtime.canTransmit("attack_direct")) {
+    return;
+  }
+
+Under:
+  else if (cmd_args.get(0) == BT_SPAM_CMD) {
+
+add:
+  if (!ghostseal_runtime.canTransmit("blespam_direct")) {
+    return;
+  }
+
+Storage architecture finding:
+- ESP32 Ghost Seal hardware currently has no SD card.
+- Final architecture must not depend on ESP32 local SD storage.
+- Logs, payload assets, captures, command history, and future web/payload assets must live on Node 1 Pi Zero 2 W.
+- ESP32 should act as the radio execution board.
+- Node 1 should act as controller, logger, storage brain, and recovery supervisor.
+
+Storage rule:
+If a Marauder feature requires local SD or local payload files, Ghost Seal must not crash or silently fail.
+
+It must either:
+1. request the asset from Node 1 over UART/USB serial, or
+2. return a structured JSON error saying Node 1 remote storage is required.
+
+Future storage status event:
+{
+  "event_type":"ghostseal_storage_status",
+  "local_sd":false,
+  "remote_storage":true,
+  "node1_required":true
+}
+
+Future storage request flow:
+ESP32 Ghost Seal sends:
+{
+  "event_type":"ghostseal_storage_request",
+  "asset":"evilportal/index.html"
+}
+
+Node 1 replies with asset data or a clear error.
+
+Pi Zero 2 W / Ragnar integration decision:
+The Pi Zero 2 W becoming the storage brain does NOT interfere with Ragnar if designed correctly.
+
+Correct Node 1 layout:
+- Ragnar-derived controller = high-level brain
+- ghostseal-bridge service = serial driver / storage bridge / logger / recovery layer
+- ESP32 Ghost Seal = radio execution board
+- Pi local filesystem = logs, payloads, captures, command history, validation logs
+
+Critical design rule:
+Only one service should own the ESP32 serial port.
+
+Bad architecture:
+- Ragnar talks directly to /dev/ttyUSB0
+- logger talks directly to /dev/ttyUSB0
+- dashboard talks directly to /dev/ttyUSB0
+- storage bridge talks directly to /dev/ttyUSB0
+
+Good architecture:
+- ghostseal-bridge owns /dev/ttyUSB0
+- Ragnar talks to ghostseal-bridge
+- dashboard talks to ghostseal-bridge
+- logger/storage is handled by ghostseal-bridge
+
+Recommended Node 1 architecture:
+Ragnar-derived controller
+        |
+        v
+ghostseal-bridge service
+        |
+        v
+USB/UART serial
+        |
+        v
+ESP32 Ghost Seal firmware
+
+Node 1 responsibilities:
+- send commands to Ghost Seal
+- parse JSON replies
+- log all serial output
+- store captures/payloads/assets
+- expose stable API to Ragnar
+- detect ESP32 reboot/crash
+- retry or reset if needed
+- eventually coordinate dual communication with ESP32-C5 supervisor
+
+ESP32-C5 / dual communication note:
+ESP32-C5 can later be used as a supervisor/recovery/secondary communication board.
+
+Possible C5 responsibilities:
+- heartbeat monitoring
+- crash detection
+- reset control for ESP32-S3
+- backup command channel
+- health/status reporting
+- dual serial bridge
+- safe-mode recovery
+
+Important:
+C5 should not be used to hide broken firmware policy. The direct active-command bypass must still be fixed inside Ghost Seal.
+
+Current project status:
+PASS:
+- firmware boots cleanly
+- Ghost Seal banner appears
+- native CLI works
+- status/disarm safe baseline works
+- ghostseal exec forwarding works
+- active command gate works through ghostseal exec
+- BLE blespam command route starts while armed
+- validation logging started
+- README and command reference have been updated
+
+FAIL / PATCH REQUIRED:
+- raw blespam -t sourapple bypasses Ghost Seal while disarmed
+- raw active handlers need direct canTransmit guards
+- BLE spam path caused Guru Meditation crash
+- no-SD architecture needs explicit remote-storage handling
+
+PENDING:
+- direct active handler gating patch
+- BLE crash investigation
+- storage capability reporting
+- Node 1 ghostseal-bridge service
+- remote payload/asset request protocol
+- full Marauder command parity validation
+- friendly native aliases after parity
+- ESP32-C5 supervisor design
+
+============================================================
+Node 1 Serial Bridge Validation — PASS
+Date: 2026-06-05
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Username: cyberdeck
+- Host prompt observed: cyberdeck@ghostseal-node1
+
+Serial device result:
+- /dev/ttyUSB0 failed because the ESP32 was not present on that port.
+- /dev/ttyACM0 opened successfully.
+- Baud rate used: 115200
+
+Script tested:
+~/ghostseal-node1/ghostseal_serial_test.py
+
+Commands sent from Node 1:
+ghostseal ping
+ghostseal identify
+ghostseal status
+ghostseal exec info
+
+Observed results:
+- Node 1 opened Ghost Seal serial on /dev/ttyACM0.
+- Node 1 captured the ESP32 Marauder / Ghost Seal boot banner.
+- ghostseal ping returned:
+  {"event_type":"ghostseal_ping","response":"pong"}
+
+- ghostseal identify returned:
+  {"event_type":"ghostseal_identity","device":"ghostseal","node_id":"ghostseal-01","transport":"uart"}
+
+- ghostseal status returned:
+  {"event_type":"ghostseal_status","quiet_boot":true,"uart_first":true,"tool_armed":false,"tx_permitted":false,"tx_active":false,"remaining_ms":0}
+  {"event_type":"ghostseal_tool_status","running":false,"scan_mode":0}
+
+- ghostseal exec info forwarded correctly and returned Marauder firmware info:
+  Firmware: Marauder
+  Version: v1.12.2
+  Hardware: ESP32
+  ESP-IDF: v4.4.7-dirty
+  WSL Bypass: disabled
+  Station MAC: 90:70:69:12:29:64
+  AP MAC: 92:70:69:12:29:64
+
+Conclusion:
+Node 1 Pi Zero 2 W successfully communicated with Ghost Seal over USB serial. Native Ghost Seal JSON commands worked from Node 1, and original Marauder command forwarding through ghostseal exec also worked from Node 1.
+
+Status:
+PASS — Node 1 serial bridge proof completed.
+
+Notes:
+- The Pi currently creates a local runtime log under ~/ghostseal-node1/logs, but the official project record is this repository validation log.
+- Future ghostseal-bridge service should still keep local runtime logs on Node 1 during operation, but milestones and validation results should be copied into the repo docs and committed.
+- A partial boot/serial fragment was observed:
+  > #{"event_type":"g
+  This is not currently blocking, but should be watched during bridge development.
+
+Next:
+- Update the Node 1 script to auto-detect /dev/ttyACM0 or /dev/ttyUSB0.
+- Build ghostseal-bridge v0.1 as the single owner of the ESP32 serial port.
+- Keep Ragnar above ghostseal-bridge instead of letting multiple programs fight over serial.
+
+============================================================
+Node 1 Serial Bridge Script Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Host: ghostseal-node1
+- User: cyberdeck
+
+Script:
+~/ghostseal-node1/ghostseal_serial_test.py
+
+Serial detection:
+- Detected /dev/ttyS0
+- Detected /dev/ttyACM0 as USB JTAG/serial debug unit
+- Selected /dev/ttyACM0
+- Baud rate: 115200
+
+Runtime log created on Pi:
+~/ghostseal-node1/logs/ghostseal_serial_20260606_000123.log
+
+Commands tested from Node 1:
+- ghostseal ping
+- ghostseal identify
+- ghostseal status
+- ghostseal exec info
+- stopscan
+- ghostseal disarm
+- ghostseal status
+
+Results:
+- ghostseal ping: PASS
+- ghostseal identify: PASS
+- ghostseal status: PASS
+- ghostseal exec info: PASS
+- Node 1 successfully parsed Ghost Seal JSON events.
+- Node 1 successfully forwarded a Marauder command through ghostseal exec.
+- ghostseal exec info returned firmware info for Marauder v1.12.2.
+- Cleanup sequence successfully stopped scan and disarmed Ghost Seal.
+
+Observed:
+- Boot banner was not detected in the capture window. This is not blocking because the board may have already booted before the Pi started reading.
+- Initial status showed running true and scan_mode 101, likely leftover from earlier BLE testing.
+- Cleanup succeeded and final status showed running false and scan_mode 0.
+
+Conclusion:
+Node 1 serial bridge script passed. Pi Zero 2 W can now auto-detect the Ghost Seal ESP32, send native Ghost Seal commands, forward Marauder commands, parse JSON events, log runtime output, and return the firmware to a safe idle state.
+
+Next:
+- Convert this test script into ghostseal-bridge v0.1.
+- The bridge should own the serial port.
+- Ragnar should talk to ghostseal-bridge, not directly to /dev/ttyACM0.
+- Add command queue, reconnect handling, and structured log export.
+
+============================================================
+ghostseal-bridge v0.1 Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Host: ghostseal-node1
+- User: cyberdeck
+
+Installed command:
+- /usr/local/bin/ghostseal-bridge
+
+Serial:
+- Port detected: /dev/ttyACM0
+- Baud: 115200
+- Device description: USB JTAG/serial debug unit
+
+Commands validated:
+- ghostseal-bridge ping
+- ghostseal-bridge identify
+- ghostseal-bridge status
+- ghostseal-bridge info
+- ghostseal-bridge stop
+- ghostseal-bridge disarm
+- ghostseal-bridge exec info
+- ghostseal-bridge exec packetcount
+- ghostseal-bridge stop
+- ghostseal-bridge status
+
+Observed:
+- ping returned ghostseal_ping / pong.
+- identify returned ghostseal_identity.
+- status returned ghostseal_status and ghostseal_tool_status.
+- info used ghostseal exec info and returned Marauder firmware info.
+- packetcount was forwarded through ghostseal exec.
+- stopscan was successfully sent through ghostseal-bridge stop.
+- final status showed tool_armed false, tx_permitted false, tx_active false, running false, scan_mode 0.
+
+Conclusion:
+ghostseal-bridge v0.1 passed. Node 1 can now control Ghost Seal through a named Pi command wrapper instead of manual Serial Monitor input. This proves the first working Pi-to-ESP32 command bridge for the Ghost Seal / Spectrum Seals architecture.
+
+Next:
+- Keep ghostseal-bridge as the only program that owns /dev/ttyACM0.
+- Convert ghostseal-bridge from one-command wrapper into persistent service later.
+- Add command queue, reconnect detection, crash detection, and structured log export.
+- Keep Ragnar above ghostseal-bridge instead of letting Ragnar directly fight for the serial port.
+
+============================================================
+Node 1 BLE Active Gate Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Host: ghostseal-node1
+- User: cyberdeck
+
+Command tested from Node 1:
+ghostseal-bridge exec blespam -t sourapple
+
+Observed output:
+[ghostseal-bridge] command=ghostseal exec blespam -t sourapple
+#ghostseal exec blespam -t sourapple
+{"event_type":"ghostseal_cmd_blocked","module":"blespam","reason":"tool_not_armed"}
+{"event_type":"ghostseal_exec_denied","command":"blespam -t sourapple","reason":"not_armed"}
+
+Result:
+PASS
+
+Conclusion:
+Node 1 ghostseal-bridge correctly sent a BLE active command through ghostseal exec. Ghost Seal classified blespam as active and blocked it while disarmed. This confirms the Pi-side bridge respects the Ghost Seal authorization model when using ghostseal exec.
+
+============================================================
+Direct Marauder Active Handler Gate Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Commands tested while disarmed:
+- ghostseal disarm
+- blespam -t sourapple
+- attack -t test
+- ghostseal status
+
+Expected:
+Raw Marauder active commands should not bypass Ghost Seal authorization while disarmed.
+
+Result:
+- Raw blespam direct path is now blocked by ghostseal_runtime.canTransmit("blespam_direct").
+- Raw attack direct path is now blocked by ghostseal_runtime.canTransmit("attack_direct").
+- Direct active commands no longer bypass the Ghost Seal exec authorization model.
+- Final status confirmed safe idle state.
+
+Conclusion:
+Direct raw Marauder active-command bypass has been patched for attack and blespam. Both ghostseal exec active commands and raw active handlers now require Ghost Seal authorization.
+
+============================================================
+ghostseal-bridge v0.1.1 Command Wrapper Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Host: ghostseal-node1
+- User: cyberdeck
+
+Bridge version:
+- ghostseal-bridge v0.1.1
+
+New bridge commands validated:
+- ghostseal-bridge arm 60
+- ghostseal-bridge status
+- ghostseal-bridge disarm
+- ghostseal-bridge tool list
+- ghostseal-bridge tool status
+- ghostseal-bridge tool start packet_rate
+- ghostseal-bridge tool stop
+
+Observed:
+- ghostseal-bridge help now exposes:
+  ping, identify, status, info, stop, disarm, arm, tool, exec
+
+- ghostseal-bridge arm 60 sent:
+  ghostseal arm 60
+
+- Ghost Seal returned:
+  {""event_type"":""ghostseal_tool_armed"",""duration_sec"":60,""tx_permitted"":true,""tx_active"":false}
+
+- ghostseal-bridge status confirmed:
+  tool_armed true
+  tx_permitted true
+  tx_active false
+  running false
+  scan_mode 0
+
+- ghostseal-bridge disarm returned:
+  {""event_type"":""ghostseal_tool_disarmed"",""tx_permitted"":false,""tx_active"":false}
+
+- ghostseal-bridge tool list returned passive tools:
+  packet_rate
+  channel_analyzer
+  channel_activity
+  signal_strength
+  ap_sta_scan
+
+- ghostseal-bridge tool start packet_rate returned:
+  {""event_type"":""ghostseal_tool_started"",""tool"":""packet_rate"",""mode"":""passive"",""scan_mode"":48}
+
+- ghostseal-bridge tool status confirmed:
+  running true
+  scan_mode 48
+
+- ghostseal-bridge tool stop returned:
+  {""event_type"":""ghostseal_tool_stopped"",""previous_scan_mode"":48}
+
+- Final ghostseal-bridge status confirmed:
+  tool_armed false
+  tx_permitted false
+  tx_active false
+  running false
+  scan_mode 0
+
+Result:
+PASS
+
+Conclusion:
+ghostseal-bridge v0.1.1 successfully exposes the current Ghost Seal native command set from Node 1, including arm/disarm and passive tool control. Node 1 can now control Ghost Seal without manual Arduino Serial Monitor input for the validated command families.
+
+Next:
+- Commit the updated ghostseal_bridge.py into the repository under a Node 1 tools/scripts folder.
+- Begin ghostseal-bridge v0.2 design as a persistent service.
+- v0.2 should open serial once, avoid ESP32 reset per command, manage a command queue, and become the only owner of /dev/ttyACM0.
+
+============================================================
+ghostseal-bridge v0.1.1 Command Wrapper Validation — PASS
+Date: 2026-06-06
+Branch: ghostseal-command-parity
+============================================================
+
+Node:
+- Raspberry Pi Zero 2 W
+- Host: ghostseal-node1
+- User: cyberdeck
+
+Bridge version:
+- ghostseal-bridge v0.1.1
+
+New bridge commands validated:
+- ghostseal-bridge arm 60
+- ghostseal-bridge status
+- ghostseal-bridge disarm
+- ghostseal-bridge tool list
+- ghostseal-bridge tool status
+- ghostseal-bridge tool start packet_rate
+- ghostseal-bridge tool stop
+
+Observed:
+- ghostseal-bridge help now exposes ping, identify, status, info, stop, disarm, arm, tool, and exec.
+- ghostseal-bridge arm 60 sent ghostseal arm 60.
+- Ghost Seal returned tx_permitted true and tx_active false.
+- ghostseal-bridge status confirmed tool_armed true, tx_permitted true, tx_active false, running false, scan_mode 0.
+- ghostseal-bridge disarm returned tx_permitted false and tx_active false.
+- ghostseal-bridge tool list returned packet_rate, channel_analyzer, channel_activity, signal_strength, and ap_sta_scan.
+- ghostseal-bridge tool start packet_rate started passive scan_mode 48.
+- ghostseal-bridge tool status confirmed running true and scan_mode 48.
+- ghostseal-bridge tool stop stopped scan_mode 48.
+- Final ghostseal-bridge status confirmed tool_armed false, tx_permitted false, tx_active false, running false, scan_mode 0.
+
+Result:
+PASS
+
+Conclusion:
+ghostseal-bridge v0.1.1 successfully exposes the current Ghost Seal native command set from Node 1, including arm/disarm and passive tool control. Node 1 can now control Ghost Seal without manual Arduino Serial Monitor input for the validated command families.
+
+Next:
+- Commit the updated ghostseal_bridge.py into the repository under node1/.
+- Begin ghostseal-bridge v0.2 design as a persistent service.
+- v0.2 should open serial once, avoid ESP32 reset per command, manage a command queue, and become the only owner of /dev/ttyACM0.
+
+## ghostseal-bridge v0.1.1 stability validation - 2026-06-06
+
+Environment:
+- Node: ghostseal-node1
+- User: cyberdeck
+- Serial port: /dev/ttyACM0
+- Baud: 115200
+- Branch: ghostseal-command-parity
+- Bridge: ghostseal-bridge v0.1.1
+
+Validated commands:
+- ghostseal-bridge ping
+- ghostseal-bridge identify
+- ghostseal-bridge status
+- ghostseal-bridge info
+- ghostseal-bridge arm 5
+- ghostseal-bridge arm 15
+- ghostseal-bridge disarm
+- ghostseal-bridge stop
+- ghostseal-bridge exec definitelynotreal
+
+Results:
+- PASS: ping returned ghostseal_ping / pong.
+- PASS: identify returned ghostseal_identity with node_id ghostseal-01.
+- PASS: status returned machine-readable ghostseal_status and ghostseal_tool_status JSON.
+- PASS: info forwarded through ghostseal exec and returned Marauder firmware info.
+- PASS: 10x repeated status loop did not lock the serial port or crash the bridge.
+- PASS: active authorization remained false during normal status tests.
+- PASS: 5x arm/disarm loop successfully armed and returned to safe state each time.
+- PASS: 15-second arm test showed visible armed window with tx_permitted=true and remaining_ms above 0.
+- PASS: timeout/disarm behavior returned tx_permitted=false and tx_active=false.
+- PASS: global stop command stopped passive scan state and reset scan_mode to 0.
+- PASS: bad forwarded command did not crash firmware or bridge.
+- PASS: status after bad forwarded command confirmed safe state.
+
+Observed notes:
+- First bridge connection may include ESP32/Marauder boot banner and partial startup UART output. Command still completed successfully.
+- One status loop response showed truncated UART output, but following status calls recovered normally.
+- v0.1.1 parser does not accept "ghostseal-bridge tool stop packet_rate"; current valid cleanup path is "ghostseal-bridge stop".
+- During 5-second arm loop, status usually observed around 900ms remaining because bridge command overhead consumed most of the short arm window.
+- Bad forwarded command currently returns to prompt without a structured unknown_command event.
+
+Current final state:
+- tool_armed=false
+- tx_permitted=false
+- tx_active=false
+- remaining_ms=0
+- tool running=false
+- scan_mode=0
+
+Conclusion:
+ghostseal-bridge v0.1.1 is stable enough to continue command parity validation. Persistent v0.2 service work should wait until additional command categories are validated.
+
+
+## ghostseal-bridge v0.1.1 command parity validation block 2 - 2026-06-06
+
+Environment:
+- Node: ghostseal-node1
+- User: cyberdeck
+- Serial port: /dev/ttyACM0
+- Baud: 115200
+- Branch: ghostseal-command-parity
+- Bridge: ghostseal-bridge v0.1.1
+
+Validated commands:
+- ghostseal-bridge tool list
+- ghostseal-bridge tool status
+- ghostseal-bridge tool start packet_rate
+- ghostseal-bridge status
+- ghostseal-bridge stop
+- ghostseal-bridge disarm
+- ghostseal-bridge exec blespam
+
+Results:
+- PASS: tool list returned passive tool manifest.
+- PASS: passive tools listed: packet_rate, channel_analyzer, channel_activity, signal_strength, ap_sta_scan.
+- PASS: initial tool status returned running=false and scan_mode=0.
+- PASS: packet_rate started through bridge.
+- PASS: packet_rate reported running=true.
+- PASS: packet_rate used scan_mode=48 in this firmware build.
+- PASS: status during packet_rate showed Ghost Seal remained disarmed.
+- PASS: tx_permitted remained false during passive packet_rate tool operation.
+- PASS: tx_active remained false during passive packet_rate tool operation.
+- PASS: global stop command stopped packet_rate and reset scan_mode to 0.
+- PASS: disarm command returned tx_permitted=false and tx_active=false.
+- PASS: blespam was blocked while disarmed.
+- PASS: blocked blespam emitted ghostseal_cmd_blocked with module=blespam and reason=tool_not_armed.
+- PASS: blocked blespam emitted ghostseal_exec_denied with command=blespam and reason=not_armed.
+- PASS: status after blocked blespam confirmed safe state.
+
+Final safe state:
+- tool_armed=false
+- tx_permitted=false
+- tx_active=false
+- remaining_ms=0
+- running=false
+- scan_mode=0
+
+Observed notes:
+- packet_rate scan_mode is 48 in this firmware build.
+- Earlier scan_mode=101 was not packet_rate in this validation block.
+- v0.1.1 global cleanup path is ghostseal-bridge stop, which forwards stopscan.
+- The raw ghostseal exec path did not bypass authorization for blespam.
+
+Conclusion:
+Command parity validation block 2 passed. ghostseal-bridge v0.1.1 can list passive tools, start packet_rate, report tool state, clean up with stopscan, and block active blespam execution while disarmed.
+
+
+## ghostseal-bridge v0.1.1 passive tool sweep - 2026-06-06
+
+Environment:
+- Node: ghostseal-node1
+- User: cyberdeck
+- Serial port: /dev/ttyACM0
+- Baud: 115200
+- Branch: ghostseal-command-parity
+- Bridge: ghostseal-bridge v0.1.1
+
+Validated passive tools:
+- packet_rate
+- channel_analyzer
+- channel_activity
+- signal_strength
+- ap_sta_scan
+
+Results:
+- PASS: packet_rate started, reported running=true, used scan_mode=48, and stopped cleanly.
+- PASS: channel_analyzer started, reported running=true, used scan_mode=46, and stopped cleanly.
+- PASS: channel_activity started, reported running=true, used scan_mode=71, and stopped cleanly.
+- PASS: signal_strength started, reported running=true, used scan_mode=29, and stopped cleanly.
+- PASS: ap_sta_scan started, reported running=true, used scan_mode=49, and stopped cleanly.
+- PASS: all passive tools kept Ghost Seal disarmed.
+- PASS: all passive tools kept tx_permitted=false.
+- PASS: all passive tools kept tx_active=false.
+- PASS: stopscan returned each tested passive mode to running=false and scan_mode=0.
+
+Observed notes:
+- An attempted pasted Bash loop malformed into an empty tool start command. Firmware returned ghostseal_error with reason=invalid_tool_command and remained safe.
+- ap_sta_scan emits live raw scan output into the UART stream while running.
+- Bridge v0.1.1 currently mixes raw scan output, bridge metadata, and Ghost Seal JSON events in the terminal output.
+- Future bridge improvement: classify output lines as json_event, raw_scan_output, bridge_metadata, command_echo, or prompt.
+
+Passive tool scan mode map observed in this validation:
+- packet_rate: 48
+- channel_analyzer: 46
+- channel_activity: 71
+- signal_strength: 29
+- ap_sta_scan: 49
+
+Final safe state:
+- tool_armed=false
+- tx_permitted=false
+- tx_active=false
+- remaining_ms=0
+- running=false
+- scan_mode=0
+
+Conclusion:
+All currently listed Ghost Seal passive tools validated through ghostseal-bridge v0.1.1. Passive command parity block passed.
+
+
+## ghostseal-bridge v0.1.1 active gate allowed-command validation - 2026-06-06
+
+Environment:
+- Node: ghostseal-node1
+- User: cyberdeck
+- Serial port: /dev/ttyACM0
+- Baud: 115200
+- Branch: ghostseal-command-parity
+- Bridge: ghostseal-bridge v0.1.1
+- Test condition: safe controlled environment
+
+Validated commands:
+- ghostseal-bridge disarm
+- ghostseal-bridge status
+- ghostseal-bridge arm 15
+- ghostseal-bridge exec blespam
+- ghostseal-bridge stop
+- ghostseal-bridge disarm
+- ghostseal-bridge status
+
+Results:
+- PASS: initial disarm returned tx_permitted=false and tx_active=false.
+- PASS: initial status confirmed tool_armed=false, tx_permitted=false, tx_active=false, running=false, and scan_mode=0.
+- PASS: arm 15 opened the active gate and returned tx_permitted=true.
+- PASS: status after arm showed tool_armed=true, tx_permitted=true, tx_active=false, and remaining_ms=10900.
+- PASS: ghostseal exec blespam was forwarded with policy=active while armed.
+- PASS: armed blespam command did not emit ghostseal_cmd_blocked.
+- PASS: armed blespam command did not emit ghostseal_exec_denied.
+- PASS: timeout/disarm event returned tx_permitted=false and tx_active=false.
+- PASS: stopscan cleanup executed after the active command.
+- PASS: manual disarm returned tx_permitted=false and tx_active=false.
+- PASS: final status confirmed safe state.
+
+Final safe state:
+- tool_armed=false
+- tx_permitted=false
+- tx_active=false
+- remaining_ms=0
+- running=false
+- scan_mode=0
+
+Conclusion:
+Active gate behavior is validated for blespam through ghostseal-bridge v0.1.1. The same command path is denied while disarmed and forwarded only while armed. Cleanup returns Ghost Seal to a safe state.
+
+
+## ghostseal-bridge v0.1.1 isolated active command validation - 2026-06-06
+
+Environment:
+- Node: ghostseal-node1
+- User: cyberdeck
+- Serial port: /dev/ttyACM0
+- Baud: 115200
+- Branch: ghostseal-command-parity
+- Bridge: ghostseal-bridge v0.1.1
+- Test condition: safe controlled environment with controlled defensive devices
+
+Validation method:
+Each active command was tested from a clean safe state using:
+- disarm
+- status
+- arm 30
+- ghostseal exec <active command>
+- short observation window
+- status
+- stopscan via ghostseal-bridge stop
+- disarm
+- final status
+
+General expected behavior:
+- Commands must not run while disarmed.
+- Commands may forward only while armed.
+- Forwarded active commands must use policy=active.
+- stopscan and disarm must return the device to safe state.
+- Final state must show tool_armed=false, tx_permitted=false, tx_active=false, running=false, and scan_mode=0.
+
+Validated active commands:
+- evilportal -c start
+- attack -t beacon
+- attack -t deauth
+- attack -t probe
+- attack -t rickroll
+- blespam -t all
+
+Results:
+- PASS: evilportal -c start forwarded with policy=active while armed.
+- PASS: evilportal -c start entered running=true with scan_mode=30.
+- PASS: evilportal -c start stopped cleanly with stopscan and returned to safe state.
+- NOTE: evilportal -c start reported missing /ap.config.txt, so full portal asset runtime requires config/asset delivery.
+
+- PASS: attack -t beacon forwarded with policy=active while armed.
+- PASS: attack -t beacon was not denied as not_armed and was not blocked as tool_not_armed.
+- NOTE: attack -t beacon did not enter running mode from clean state; status remained running=false and scan_mode=0. Runtime likely requires selected AP/SSID/list state.
+
+- PASS: attack -t deauth forwarded with policy=active while armed.
+- PASS: attack -t deauth returned Marauder runtime output.
+- NOTE: attack -t deauth reported no selected targets. Runtime did not enter running mode because target selection state was missing.
+
+- PASS: attack -t probe forwarded with policy=active while armed.
+- PASS: attack -t probe returned Marauder runtime output.
+- NOTE: attack -t probe reported no selected targets. Runtime did not enter running mode because target selection state was missing.
+
+- PASS: attack -t rickroll forwarded with policy=active while armed.
+- PASS: attack -t rickroll entered active runtime.
+- PASS: attack -t rickroll reported running=true with scan_mode=9.
+- PASS: attack -t rickroll stopped cleanly and returned to safe state.
+
+- PASS: blespam -t all forwarded with policy=active while armed.
+- PASS: blespam -t all entered active runtime.
+- PASS: blespam -t all reported running=true with scan_mode=38.
+- PASS: blespam -t all stopped cleanly and returned to safe state.
+
+Observed active scan mode map:
+- evilportal -c start: 30
+- attack -t rickroll: 9
+- blespam -t all: 38
+
+Observed target/config-dependent commands:
+- evilportal -c start requires /ap.config.txt for full portal runtime.
+- attack -t beacon likely requires AP/SSID/list state to enter full runtime.
+- attack -t deauth requires selected targets.
+- attack -t probe requires selected targets.
+
+Final safe state after active validation:
+- tool_armed=false
+- tx_permitted=false
+- tx_active=false
+- remaining_ms=0
+- running=false
+- scan_mode=0
+
+Conclusion:
+Isolated active command validation passed for Ghost Seal bridge v0.1.1. Active commands were forwarded only while armed, used policy=active, remained controllable through the bridge, and returned to safe state through stopscan and disarm. Commands requiring selected targets or config assets correctly exposed their runtime dependency instead of breaking the bridge.
+

@@ -1,0 +1,314 @@
+﻿=== WIFI_ATTACK routes ===
+esp32_marauder/CommandLine.cpp:1031:              wifi_scan_obj.StartScan(WIFI_ATTACK_DEAUTH, TFT_RED);
+esp32_marauder/CommandLine.cpp:1034:              wifi_scan_obj.StartScan(WIFI_ATTACK_DEAUTH_TARGETED, TFT_ORANGE);
+esp32_marauder/CommandLine.cpp:1047:            wifi_scan_obj.StartScan(WIFI_ATTACK_DEAUTH_MANUAL, TFT_RED);            
+esp32_marauder/CommandLine.cpp:1053:            this->startScanFromCLI(WIFI_ATTACK_BAD_MSG, TFT_RED, "Bad Msg attack against all stations");
+esp32_marauder/CommandLine.cpp:1059:            wifi_scan_obj.StartScan(WIFI_ATTACK_BAD_MSG, TFT_RED);*/
+esp32_marauder/CommandLine.cpp:1063:            this->startScanFromCLI(WIFI_ATTACK_BAD_MSG_TARGETED, TFT_YELLOW, "targeted Bad Msg attack");
+esp32_marauder/CommandLine.cpp:1069:            wifi_scan_obj.StartScan(WIFI_ATTACK_BAD_MSG_TARGETED, TFT_YELLOW);*/
+esp32_marauder/CommandLine.cpp:1075:            this->startScanFromCLI(WIFI_ATTACK_SLEEP, TFT_RED, "Sleep attack against all stations");
+esp32_marauder/CommandLine.cpp:1081:            wifi_scan_obj.StartScan(WIFI_ATTACK_SLEEP, TFT_RED);*/
+esp32_marauder/CommandLine.cpp:1085:            this->startScanFromCLI(WIFI_ATTACK_SLEEP_TARGETED, TFT_MAGENTA, "targeted Sleep attack");
+esp32_marauder/CommandLine.cpp:1091:            wifi_scan_obj.StartScan(WIFI_ATTACK_SLEEP_TARGETED, TFT_MAGENTA);*/
+esp32_marauder/CommandLine.cpp:1106:            wifi_scan_obj.StartScan(WIFI_ATTACK_BEACON_LIST, TFT_RED);
+esp32_marauder/CommandLine.cpp:1115:            wifi_scan_obj.StartScan(WIFI_ATTACK_BEACON_SPAM, TFT_ORANGE);
+esp32_marauder/CommandLine.cpp:1128:            wifi_scan_obj.StartScan(WIFI_ATTACK_AP_SPAM, TFT_MAGENTA);
+esp32_marauder/CommandLine.cpp:1136:          this->startScanFromCLI(WIFI_ATTACK_AUTH, TFT_RED, "Probe spam");
+esp32_marauder/CommandLine.cpp:1139:          this->startScanFromCLI(WIFI_ATTACK_RICK_ROLL, TFT_YELLOW, "Rick Roll Beacon spam");
+esp32_marauder/CommandLine.cpp:1142:          this->startScanFromCLI(WIFI_ATTACK_FUNNY_BEACON, TFT_CYAN, "Funny SSID Beacon spam");
+esp32_marauder/CommandLine.cpp:1145:          this->startScanFromCLI(WIFI_ATTACK_SAE_COMMIT, TFT_CYAN, "SAE Commit spam");
+esp32_marauder/CommandLine.cpp:1148:          this->startScanFromCLI(WIFI_ATTACK_CSA, TFT_CYAN, "Channel Switch Announcement attack");
+esp32_marauder/CommandLine.cpp:1151:          this->startScanFromCLI(WIFI_ATTACK_QUIET, TFT_CYAN, "Quite Time attack");
+esp32_marauder/Display.h:34:#define WIFI_ATTACK_BEACON_SPAM 8
+esp32_marauder/Display.h:35:#define WIFI_ATTACK_RICK_ROLL 9
+esp32_marauder/Display.h:41:#define WIFI_ATTACK_BEACON_LIST 15
+esp32_marauder/MenuFunctions.cpp:187:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_BEACON_SPAM) &&
+esp32_marauder/MenuFunctions.cpp:188:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_AP_SPAM) &&
+esp32_marauder/MenuFunctions.cpp:189:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_CSA) &&
+esp32_marauder/MenuFunctions.cpp:190:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_QUIET) &&
+esp32_marauder/MenuFunctions.cpp:191:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_AUTH) &&
+esp32_marauder/MenuFunctions.cpp:192:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_DEAUTH) &&
+esp32_marauder/MenuFunctions.cpp:193:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_DEAUTH_MANUAL) &&
+esp32_marauder/MenuFunctions.cpp:194:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_DEAUTH_TARGETED) &&
+esp32_marauder/MenuFunctions.cpp:195:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_BAD_MSG_TARGETED) &&
+esp32_marauder/MenuFunctions.cpp:196:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_BAD_MSG) &&
+esp32_marauder/MenuFunctions.cpp:197:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_SLEEP) &&
+esp32_marauder/MenuFunctions.cpp:198:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_SLEEP_TARGETED) &&
+esp32_marauder/MenuFunctions.cpp:199:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_MIMIC) &&
+esp32_marauder/MenuFunctions.cpp:200:	  (wifi_scan_obj.currentScanMode != WIFI_ATTACK_FUNNY_BEACON) &&
+esp32_marauder/MenuFunctions.cpp:201:      (wifi_scan_obj.currentScanMode != WIFI_ATTACK_RICK_ROLL))
+esp32_marauder/MenuFunctions.cpp:305:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_BEACON_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:306:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_AP_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:307:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_CSA) ||
+esp32_marauder/MenuFunctions.cpp:308:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_QUIET) ||
+esp32_marauder/MenuFunctions.cpp:309:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_AUTH) ||
+esp32_marauder/MenuFunctions.cpp:310:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_DEAUTH) ||
+esp32_marauder/MenuFunctions.cpp:311:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_DEAUTH_MANUAL) ||
+esp32_marauder/MenuFunctions.cpp:312:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_DEAUTH_TARGETED) ||
+esp32_marauder/MenuFunctions.cpp:313:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_BAD_MSG_TARGETED) ||
+esp32_marauder/MenuFunctions.cpp:314:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_BAD_MSG) ||
+esp32_marauder/MenuFunctions.cpp:315:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_SLEEP) ||
+esp32_marauder/MenuFunctions.cpp:316:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_SLEEP_TARGETED) ||
+esp32_marauder/MenuFunctions.cpp:317:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_SAE_COMMIT) ||
+esp32_marauder/MenuFunctions.cpp:318:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_MIMIC) ||
+esp32_marauder/MenuFunctions.cpp:319:		      (wifi_scan_obj.currentScanMode == WIFI_ATTACK_FUNNY_BEACON) ||
+esp32_marauder/MenuFunctions.cpp:320:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_RICK_ROLL) ||
+esp32_marauder/MenuFunctions.cpp:321:          (wifi_scan_obj.currentScanMode == WIFI_ATTACK_BEACON_LIST) ||
+esp32_marauder/MenuFunctions.cpp:408:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_BEACON_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:409:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_AP_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:410:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_CSA) ||
+esp32_marauder/MenuFunctions.cpp:411:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_QUIET) ||
+esp32_marauder/MenuFunctions.cpp:412:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_AUTH) ||
+esp32_marauder/MenuFunctions.cpp:413:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_DEAUTH) ||
+esp32_marauder/MenuFunctions.cpp:414:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_DEAUTH_MANUAL) ||
+esp32_marauder/MenuFunctions.cpp:415:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_DEAUTH_TARGETED) ||
+esp32_marauder/MenuFunctions.cpp:416:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_BAD_MSG_TARGETED) ||
+esp32_marauder/MenuFunctions.cpp:417:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_BAD_MSG) ||
+esp32_marauder/MenuFunctions.cpp:418:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_SLEEP) ||
+esp32_marauder/MenuFunctions.cpp:419:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_SLEEP_TARGETED) ||
+esp32_marauder/MenuFunctions.cpp:420:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_SAE_COMMIT) ||
+esp32_marauder/MenuFunctions.cpp:421:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_MIMIC) ||
+esp32_marauder/MenuFunctions.cpp:422:			      (wifi_scan_obj.currentScanMode == WIFI_ATTACK_FUNNY_BEACON) ||
+esp32_marauder/MenuFunctions.cpp:423:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_RICK_ROLL) ||
+esp32_marauder/MenuFunctions.cpp:424:            (wifi_scan_obj.currentScanMode == WIFI_ATTACK_BEACON_LIST) ||
+esp32_marauder/MenuFunctions.cpp:482:    if ((wifi_scan_obj.currentScanMode != WIFI_ATTACK_BEACON_SPAM) &&
+esp32_marauder/MenuFunctions.cpp:483:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_AP_SPAM) &&
+esp32_marauder/MenuFunctions.cpp:484:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_CSA) &&
+esp32_marauder/MenuFunctions.cpp:485:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_QUIET) &&
+esp32_marauder/MenuFunctions.cpp:486:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_AUTH) &&
+esp32_marauder/MenuFunctions.cpp:487:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_DEAUTH) &&
+esp32_marauder/MenuFunctions.cpp:488:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_DEAUTH_MANUAL) &&
+esp32_marauder/MenuFunctions.cpp:489:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_DEAUTH_TARGETED) &&
+esp32_marauder/MenuFunctions.cpp:490:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_BAD_MSG_TARGETED) &&
+esp32_marauder/MenuFunctions.cpp:491:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_BAD_MSG) &&
+esp32_marauder/MenuFunctions.cpp:492:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_SLEEP) &&
+esp32_marauder/MenuFunctions.cpp:493:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_SLEEP_TARGETED) &&
+esp32_marauder/MenuFunctions.cpp:494:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_SAE_COMMIT) &&
+esp32_marauder/MenuFunctions.cpp:495:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_MIMIC) &&
+esp32_marauder/MenuFunctions.cpp:505:		    (wifi_scan_obj.currentScanMode != WIFI_ATTACK_FUNNY_BEACON) &&
+esp32_marauder/MenuFunctions.cpp:507:        (wifi_scan_obj.currentScanMode != WIFI_ATTACK_RICK_ROLL))
+esp32_marauder/MenuFunctions.cpp:1840:    wifi_scan_obj.StartScan(WIFI_ATTACK_BEACON_LIST, TFT_RED);
+esp32_marauder/MenuFunctions.cpp:1845:    wifi_scan_obj.StartScan(WIFI_ATTACK_BEACON_SPAM, TFT_ORANGE);
+esp32_marauder/MenuFunctions.cpp:1850:    wifi_scan_obj.StartScan(WIFI_ATTACK_FUNNY_BEACON, TFT_CYAN);
+esp32_marauder/MenuFunctions.cpp:1855:    wifi_scan_obj.StartScan(WIFI_ATTACK_RICK_ROLL, TFT_YELLOW);
+esp32_marauder/MenuFunctions.cpp:1860:    wifi_scan_obj.StartScan(WIFI_ATTACK_AUTH, TFT_RED);
+esp32_marauder/MenuFunctions.cpp:1916:    wifi_scan_obj.StartScan(WIFI_ATTACK_DEAUTH, TFT_RED);
+esp32_marauder/MenuFunctions.cpp:1921:    wifi_scan_obj.StartScan(WIFI_ATTACK_AP_SPAM, TFT_MAGENTA);
+esp32_marauder/MenuFunctions.cpp:1926:    wifi_scan_obj.StartScan(WIFI_ATTACK_DEAUTH_TARGETED, TFT_ORANGE);
+esp32_marauder/MenuFunctions.cpp:1956:    wifi_scan_obj.StartScan(WIFI_ATTACK_BAD_MSG, TFT_RED);
+esp32_marauder/MenuFunctions.cpp:1961:    wifi_scan_obj.StartScan(WIFI_ATTACK_BAD_MSG_TARGETED, TFT_YELLOW);
+esp32_marauder/MenuFunctions.cpp:1966:    wifi_scan_obj.StartScan(WIFI_ATTACK_SLEEP, TFT_RED);
+esp32_marauder/MenuFunctions.cpp:1971:    wifi_scan_obj.StartScan(WIFI_ATTACK_SLEEP_TARGETED, TFT_MAGENTA);
+esp32_marauder/MenuFunctions.cpp:1976:    wifi_scan_obj.StartScan(WIFI_ATTACK_SAE_COMMIT, TFT_GREEN);
+esp32_marauder/MenuFunctions.cpp:1981:    wifi_scan_obj.StartScan(WIFI_ATTACK_CSA, TFT_GREEN);
+esp32_marauder/MenuFunctions.cpp:1986:    wifi_scan_obj.StartScan(WIFI_ATTACK_QUIET, TFT_GREEN);
+esp32_marauder/WiFiScan.cpp:1896:  else if ((scan_mode == WIFI_SCAN_SAE_COMMIT) || (scan_mode == WIFI_ATTACK_SAE_COMMIT))
+esp32_marauder/WiFiScan.cpp:1946:  else if (scan_mode == WIFI_ATTACK_BEACON_LIST)
+esp32_marauder/WiFiScan.cpp:1948:  else if (scan_mode == WIFI_ATTACK_BEACON_SPAM)
+esp32_marauder/WiFiScan.cpp:1950:  else if (scan_mode == WIFI_ATTACK_CSA)
+esp32_marauder/WiFiScan.cpp:1952:  else if (scan_mode == WIFI_ATTACK_QUIET)
+esp32_marauder/WiFiScan.cpp:1954:  else if (scan_mode == WIFI_ATTACK_RICK_ROLL)
+esp32_marauder/WiFiScan.cpp:1956:  else if (scan_mode == WIFI_ATTACK_FUNNY_BEACON)
+esp32_marauder/WiFiScan.cpp:1958:  else if (scan_mode == WIFI_ATTACK_AUTH)
+esp32_marauder/WiFiScan.cpp:1960:  else if (scan_mode == WIFI_ATTACK_DEAUTH)
+esp32_marauder/WiFiScan.cpp:1962:  else if (scan_mode == WIFI_ATTACK_DEAUTH_MANUAL)
+esp32_marauder/WiFiScan.cpp:1964:  else if (scan_mode == WIFI_ATTACK_DEAUTH_TARGETED)
+esp32_marauder/WiFiScan.cpp:1966:  else if (scan_mode == WIFI_ATTACK_BAD_MSG_TARGETED)
+esp32_marauder/WiFiScan.cpp:1968:  else if (scan_mode == WIFI_ATTACK_BAD_MSG)
+esp32_marauder/WiFiScan.cpp:1970:  else if (scan_mode == WIFI_ATTACK_SLEEP)
+esp32_marauder/WiFiScan.cpp:1972:  else if (scan_mode == WIFI_ATTACK_SLEEP_TARGETED)
+esp32_marauder/WiFiScan.cpp:1974:  else if (scan_mode == WIFI_ATTACK_AP_SPAM)
+esp32_marauder/WiFiScan.cpp:2131:  if ((scan_mode == WIFI_ATTACK_DEAUTH) ||
+esp32_marauder/WiFiScan.cpp:2132:      (scan_mode == WIFI_ATTACK_DEAUTH_TARGETED) ||
+esp32_marauder/WiFiScan.cpp:2133:      (scan_mode == WIFI_ATTACK_AUTH) ||
+esp32_marauder/WiFiScan.cpp:2134:      (scan_mode == WIFI_ATTACK_BAD_MSG) ||
+esp32_marauder/WiFiScan.cpp:2135:      (scan_mode == WIFI_ATTACK_BAD_MSG_TARGETED) ||
+esp32_marauder/WiFiScan.cpp:2136:      (scan_mode == WIFI_ATTACK_SLEEP) ||
+esp32_marauder/WiFiScan.cpp:2137:      (scan_mode == WIFI_ATTACK_SLEEP_TARGETED) ||
+esp32_marauder/WiFiScan.cpp:2138:      (scan_mode == WIFI_ATTACK_AP_SPAM) ||
+esp32_marauder/WiFiScan.cpp:2139:      (scan_mode == WIFI_ATTACK_CSA) ||
+esp32_marauder/WiFiScan.cpp:2140:      (scan_mode == WIFI_ATTACK_QUIET)) {
+esp32_marauder/WiFiScan.cpp:2151:  if (scan_mode == WIFI_ATTACK_SAE_COMMIT) {
+esp32_marauder/WiFiScan.cpp:2161:  if (scan_mode != WIFI_ATTACK_SAE_COMMIT) {
+esp32_marauder/WiFiScan.cpp:2268:  (currentScanMode == WIFI_ATTACK_BEACON_LIST) ||
+esp32_marauder/WiFiScan.cpp:2269:  (currentScanMode == WIFI_ATTACK_BEACON_SPAM) ||
+esp32_marauder/WiFiScan.cpp:2270:  (currentScanMode == WIFI_ATTACK_CSA) ||
+esp32_marauder/WiFiScan.cpp:2271:  (currentScanMode == WIFI_ATTACK_QUIET) ||
+esp32_marauder/WiFiScan.cpp:2272:  (currentScanMode == WIFI_ATTACK_AUTH) ||
+esp32_marauder/WiFiScan.cpp:2273:  (currentScanMode == WIFI_ATTACK_DEAUTH) ||
+esp32_marauder/WiFiScan.cpp:2274:  (currentScanMode == WIFI_ATTACK_DEAUTH_MANUAL) ||
+esp32_marauder/WiFiScan.cpp:2275:  (currentScanMode == WIFI_ATTACK_DEAUTH_TARGETED) ||
+esp32_marauder/WiFiScan.cpp:2276:  (currentScanMode == WIFI_ATTACK_BAD_MSG_TARGETED) ||
+esp32_marauder/WiFiScan.cpp:2277:  (currentScanMode == WIFI_ATTACK_BAD_MSG) ||
+esp32_marauder/WiFiScan.cpp:2278:  (currentScanMode == WIFI_ATTACK_SLEEP) ||
+esp32_marauder/WiFiScan.cpp:2279:  (currentScanMode == WIFI_ATTACK_SLEEP_TARGETED) ||
+esp32_marauder/WiFiScan.cpp:2280:  (currentScanMode == WIFI_ATTACK_SAE_COMMIT) ||
+esp32_marauder/WiFiScan.cpp:2281:  (currentScanMode == WIFI_ATTACK_MIMIC) ||
+esp32_marauder/WiFiScan.cpp:2282:  (currentScanMode == WIFI_ATTACK_RICK_ROLL) ||
+esp32_marauder/WiFiScan.cpp:2283:  (currentScanMode == WIFI_ATTACK_FUNNY_BEACON) ||
+esp32_marauder/WiFiScan.cpp:2284:  (currentScanMode == WIFI_ATTACK_AP_SPAM) ||
+esp32_marauder/WiFiScan.cpp:5126:  else if (scan_mode != WIFI_ATTACK_SAE_COMMIT)
+esp32_marauder/WiFiScan.cpp:5140:  if (scan_mode == WIFI_ATTACK_SAE_COMMIT)
+esp32_marauder/WiFiScan.cpp:5143:  if (scan_mode != WIFI_ATTACK_SAE_COMMIT)
+esp32_marauder/WiFiScan.cpp:5151:  if (scan_mode != WIFI_ATTACK_SAE_COMMIT)
+esp32_marauder/WiFiScan.cpp:7382:           (wifi_scan_obj.currentScanMode == WIFI_ATTACK_SAE_COMMIT)) {
+esp32_marauder/WiFiScan.cpp:7393:        if (wifi_scan_obj.currentScanMode != WIFI_ATTACK_SAE_COMMIT) {
+esp32_marauder/WiFiScan.cpp:7499:  if (scan_mode == WIFI_ATTACK_CSA) {
+esp32_marauder/WiFiScan.cpp:7508:  } else if (scan_mode == WIFI_ATTACK_QUIET) {
+esp32_marauder/WiFiScan.cpp:7510:  } else if (scan_mode == WIFI_ATTACK_AP_SPAM) {
+esp32_marauder/WiFiScan.cpp:7519:  if (scan_mode == WIFI_ATTACK_CSA) {
+esp32_marauder/WiFiScan.cpp:7525:  } else if (scan_mode == WIFI_ATTACK_QUIET) {
+esp32_marauder/WiFiScan.cpp:7541:  if ((scan_mode != WIFI_ATTACK_CSA) &&
+esp32_marauder/WiFiScan.cpp:7542:      (scan_mode != WIFI_ATTACK_QUIET))
+esp32_marauder/WiFiScan.cpp:7554:  if ((scan_mode != WIFI_ATTACK_CSA) &&
+esp32_marauder/WiFiScan.cpp:7555:      (scan_mode != WIFI_ATTACK_QUIET)) {
+esp32_marauder/WiFiScan.cpp:7576:  if ((scan_mode != WIFI_ATTACK_CSA) &&
+esp32_marauder/WiFiScan.cpp:7577:      (scan_mode != WIFI_ATTACK_QUIET)) {
+esp32_marauder/WiFiScan.cpp:10194:  else if (currentScanMode == WIFI_ATTACK_AUTH) {
+esp32_marauder/WiFiScan.cpp:10204:  else if ((currentScanMode == WIFI_ATTACK_BAD_MSG) ||
+esp32_marauder/WiFiScan.cpp:10205:          (currentScanMode == WIFI_ATTACK_BAD_MSG_TARGETED)) {
+esp32_marauder/WiFiScan.cpp:10207:      this->sendBadMsgAttack(currentTime, currentScanMode == WIFI_ATTACK_BAD_MSG);
+esp32_marauder/WiFiScan.cpp:10214:  else if ((currentScanMode == WIFI_ATTACK_SLEEP) ||
+esp32_marauder/WiFiScan.cpp:10215:          (currentScanMode == WIFI_ATTACK_SLEEP_TARGETED)) {
+esp32_marauder/WiFiScan.cpp:10217:      this->sendAssocSleepAttack(currentTime, currentScanMode == WIFI_ATTACK_SLEEP);
+esp32_marauder/WiFiScan.cpp:10224:  else if (currentScanMode == WIFI_ATTACK_SAE_COMMIT) {
+esp32_marauder/WiFiScan.cpp:10227:  else if (currentScanMode == WIFI_ATTACK_DEAUTH) {
+esp32_marauder/WiFiScan.cpp:10240:  else if (currentScanMode == WIFI_ATTACK_DEAUTH_MANUAL) {
+esp32_marauder/WiFiScan.cpp:10253:  else if (currentScanMode == WIFI_ATTACK_DEAUTH_TARGETED) {
+esp32_marauder/WiFiScan.cpp:10281:  else if ((currentScanMode == WIFI_ATTACK_BEACON_SPAM))
+esp32_marauder/WiFiScan.cpp:10297:  else if ((currentScanMode == WIFI_ATTACK_BEACON_LIST)) {
+esp32_marauder/WiFiScan.cpp:10308:  else if ((currentScanMode == WIFI_ATTACK_AP_SPAM) ||
+esp32_marauder/WiFiScan.cpp:10309:           (currentScanMode == WIFI_ATTACK_CSA) ||
+esp32_marauder/WiFiScan.cpp:10310:           (currentScanMode == WIFI_ATTACK_QUIET)) {
+esp32_marauder/WiFiScan.cpp:10322:  else if ((currentScanMode == WIFI_ATTACK_RICK_ROLL)) {
+esp32_marauder/WiFiScan.cpp:10340:  else if ((currentScanMode == WIFI_ATTACK_FUNNY_BEACON)) {
+esp32_marauder/WiFiScan.h:84:#define WIFI_ATTACK_BEACON_SPAM 8
+esp32_marauder/WiFiScan.h:85:#define WIFI_ATTACK_RICK_ROLL 9
+esp32_marauder/WiFiScan.h:91:#define WIFI_ATTACK_BEACON_LIST 15
+esp32_marauder/WiFiScan.h:94:#define WIFI_ATTACK_AUTH 18
+esp32_marauder/WiFiScan.h:95:#define WIFI_ATTACK_MIMIC 19
+esp32_marauder/WiFiScan.h:96:#define WIFI_ATTACK_DEAUTH 20
+esp32_marauder/WiFiScan.h:97:#define WIFI_ATTACK_AP_SPAM 21
+esp32_marauder/WiFiScan.h:100:#define WIFI_ATTACK_DEAUTH_MANUAL 24
+esp32_marauder/WiFiScan.h:103:#define WIFI_ATTACK_DEAUTH_TARGETED 27
+esp32_marauder/WiFiScan.h:132:#define WIFI_ATTACK_BAD_MSG 56
+esp32_marauder/WiFiScan.h:133:#define WIFI_ATTACK_BAD_MSG_TARGETED 57
+esp32_marauder/WiFiScan.h:137:#define WIFI_ATTACK_SLEEP 61
+esp32_marauder/WiFiScan.h:138:#define WIFI_ATTACK_SLEEP_TARGETED 62
+esp32_marauder/WiFiScan.h:154:#define WIFI_ATTACK_SAE_COMMIT 78
+esp32_marauder/WiFiScan.h:155:#define WIFI_ATTACK_CSA 79
+esp32_marauder/WiFiScan.h:156:#define WIFI_ATTACK_QUIET 80
+esp32_marauder/WiFiScan.h:161:#define WIFI_ATTACK_FUNNY_BEACON 99 
+=== BT_ATTACK routes ===
+esp32_marauder/CommandLine.cpp:1223:              this->startScanFromCLI(BT_ATTACK_SOUR_APPLE, TFT_GREEN, "Sour Apple attack");
+esp32_marauder/CommandLine.cpp:1228:              this->startScanFromCLI(BT_ATTACK_APPLE_JUICE, TFT_GREEN, "Apple Juice attack");
+esp32_marauder/CommandLine.cpp:1233:              this->startScanFromCLI(BT_ATTACK_SWIFTPAIR_SPAM, TFT_CYAN, "Swiftpair Spam attack");
+esp32_marauder/CommandLine.cpp:1238:              this->startScanFromCLI(BT_ATTACK_SAMSUNG_SPAM, TFT_CYAN, "Samsung Spam attack");
+esp32_marauder/CommandLine.cpp:1243:              this->startScanFromCLI(BT_ATTACK_GOOGLE_SPAM, TFT_CYAN, "Google Spam attack");
+esp32_marauder/CommandLine.cpp:1248:              this->startScanFromCLI(BT_ATTACK_FLIPPER_SPAM, TFT_ORANGE, "Flipper Spam attack");
+esp32_marauder/CommandLine.cpp:1253:              this->startScanFromCLI(BT_ATTACK_SPAM_ALL, TFT_MAGENTA, "BT Spam All attack");
+esp32_marauder/MenuFunctions.cpp:329:          (wifi_scan_obj.currentScanMode == BT_ATTACK_SOUR_APPLE) ||
+esp32_marauder/MenuFunctions.cpp:330:          (wifi_scan_obj.currentScanMode == BT_ATTACK_APPLE_JUICE) ||
+esp32_marauder/MenuFunctions.cpp:331:          (wifi_scan_obj.currentScanMode == BT_ATTACK_SWIFTPAIR_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:332:          (wifi_scan_obj.currentScanMode == BT_ATTACK_SPAM_ALL) ||
+esp32_marauder/MenuFunctions.cpp:333:          (wifi_scan_obj.currentScanMode == BT_ATTACK_SAMSUNG_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:334:          (wifi_scan_obj.currentScanMode == BT_ATTACK_GOOGLE_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:335:          (wifi_scan_obj.currentScanMode == BT_ATTACK_FLIPPER_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:433:            (wifi_scan_obj.currentScanMode == BT_ATTACK_SOUR_APPLE) ||
+esp32_marauder/MenuFunctions.cpp:434:            (wifi_scan_obj.currentScanMode == BT_ATTACK_APPLE_JUICE) ||
+esp32_marauder/MenuFunctions.cpp:435:            (wifi_scan_obj.currentScanMode == BT_ATTACK_SWIFTPAIR_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:436:            (wifi_scan_obj.currentScanMode == BT_ATTACK_SPAM_ALL) ||
+esp32_marauder/MenuFunctions.cpp:437:            (wifi_scan_obj.currentScanMode == BT_ATTACK_SAMSUNG_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:438:            (wifi_scan_obj.currentScanMode == BT_ATTACK_GOOGLE_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:439:            (wifi_scan_obj.currentScanMode == BT_ATTACK_FLIPPER_SPAM) ||
+esp32_marauder/MenuFunctions.cpp:2600:    wifi_scan_obj.StartScan(BT_ATTACK_SOUR_APPLE, TFT_GREEN);
+esp32_marauder/MenuFunctions.cpp:2605:    wifi_scan_obj.StartScan(BT_ATTACK_APPLE_JUICE, TFT_YELLOW);
+esp32_marauder/MenuFunctions.cpp:2610:    wifi_scan_obj.StartScan(BT_ATTACK_SWIFTPAIR_SPAM, TFT_CYAN);
+esp32_marauder/MenuFunctions.cpp:2615:    wifi_scan_obj.StartScan(BT_ATTACK_SAMSUNG_SPAM, TFT_RED);
+esp32_marauder/MenuFunctions.cpp:2620:    wifi_scan_obj.StartScan(BT_ATTACK_GOOGLE_SPAM, TFT_PURPLE);
+esp32_marauder/MenuFunctions.cpp:2625:    wifi_scan_obj.StartScan(BT_ATTACK_FLIPPER_SPAM, TFT_ORANGE);
+esp32_marauder/MenuFunctions.cpp:2630:    wifi_scan_obj.StartScan(BT_ATTACK_SPAM_ALL, TFT_MAGENTA);
+esp32_marauder/WiFiScan.cpp:1992:  else if ((scan_mode == BT_ATTACK_SOUR_APPLE) ||
+esp32_marauder/WiFiScan.cpp:1993:           (scan_mode == BT_ATTACK_APPLE_JUICE)) {
+esp32_marauder/WiFiScan.cpp:1998:  else if ((scan_mode == BT_ATTACK_SWIFTPAIR_SPAM) || 
+esp32_marauder/WiFiScan.cpp:1999:           (scan_mode == BT_ATTACK_SPAM_ALL) ||
+esp32_marauder/WiFiScan.cpp:2000:           (scan_mode == BT_ATTACK_SAMSUNG_SPAM) ||
+esp32_marauder/WiFiScan.cpp:2001:           (scan_mode == BT_ATTACK_GOOGLE_SPAM) ||
+esp32_marauder/WiFiScan.cpp:2002:           (scan_mode == BT_ATTACK_FLIPPER_SPAM) ||
+esp32_marauder/WiFiScan.cpp:2347:  (currentScanMode == BT_ATTACK_SOUR_APPLE) ||
+esp32_marauder/WiFiScan.cpp:2348:  (currentScanMode == BT_ATTACK_APPLE_JUICE) ||
+esp32_marauder/WiFiScan.cpp:2349:  (currentScanMode == BT_ATTACK_SWIFTPAIR_SPAM) ||
+esp32_marauder/WiFiScan.cpp:2350:  (currentScanMode == BT_ATTACK_SPAM_ALL) ||
+esp32_marauder/WiFiScan.cpp:2351:  (currentScanMode == BT_ATTACK_SAMSUNG_SPAM) ||
+esp32_marauder/WiFiScan.cpp:2352:  (currentScanMode == BT_ATTACK_GOOGLE_SPAM) ||
+esp32_marauder/WiFiScan.cpp:2353:  (currentScanMode == BT_ATTACK_FLIPPER_SPAM) ||
+esp32_marauder/WiFiScan.cpp:5257:        if (scan_mode == BT_ATTACK_SOUR_APPLE)display_obj.tft.drawCentreString("Sour Apple",TFT_WIDTH / 2,16,2);
+esp32_marauder/WiFiScan.cpp:5258:        else if (scan_mode == BT_ATTACK_APPLE_JUICE) display_obj.tft.drawCentreString("Apple Juice",TFT_WIDTH / 2,16,2);
+esp32_marauder/WiFiScan.cpp:5277:        if (scan_mode == BT_ATTACK_SWIFTPAIR_SPAM)
+esp32_marauder/WiFiScan.cpp:5279:        else if (scan_mode == BT_ATTACK_SPAM_ALL)
+esp32_marauder/WiFiScan.cpp:5281:        else if (scan_mode == BT_ATTACK_SAMSUNG_SPAM)
+esp32_marauder/WiFiScan.cpp:5283:        else if (scan_mode == BT_ATTACK_GOOGLE_SPAM)
+esp32_marauder/WiFiScan.cpp:5285:        else if (scan_mode == BT_ATTACK_FLIPPER_SPAM)
+esp32_marauder/WiFiScan.cpp:10057:  else if ((currentScanMode == BT_ATTACK_SWIFTPAIR_SPAM) ||
+esp32_marauder/WiFiScan.cpp:10058:           (currentScanMode == BT_ATTACK_SOUR_APPLE) ||
+esp32_marauder/WiFiScan.cpp:10059:           (currentScanMode == BT_ATTACK_APPLE_JUICE) ||
+esp32_marauder/WiFiScan.cpp:10060:           (currentScanMode == BT_ATTACK_SPAM_ALL) ||
+esp32_marauder/WiFiScan.cpp:10061:           (currentScanMode == BT_ATTACK_SAMSUNG_SPAM) ||
+esp32_marauder/WiFiScan.cpp:10062:           (currentScanMode == BT_ATTACK_GOOGLE_SPAM) ||
+esp32_marauder/WiFiScan.cpp:10063:           (currentScanMode == BT_ATTACK_FLIPPER_SPAM) ||
+esp32_marauder/WiFiScan.cpp:10080:      if ((currentScanMode == BT_ATTACK_GOOGLE_SPAM) ||
+esp32_marauder/WiFiScan.cpp:10081:          (currentScanMode == BT_ATTACK_SPAM_ALL))
+esp32_marauder/WiFiScan.cpp:10084:      if ((currentScanMode == BT_ATTACK_SAMSUNG_SPAM) ||
+esp32_marauder/WiFiScan.cpp:10085:          (currentScanMode == BT_ATTACK_SPAM_ALL))
+esp32_marauder/WiFiScan.cpp:10088:      if ((currentScanMode == BT_ATTACK_SWIFTPAIR_SPAM) ||
+esp32_marauder/WiFiScan.cpp:10089:          (currentScanMode == BT_ATTACK_SPAM_ALL))
+esp32_marauder/WiFiScan.cpp:10092:      if ((currentScanMode == BT_ATTACK_SOUR_APPLE) ||
+esp32_marauder/WiFiScan.cpp:10093:          (currentScanMode == BT_ATTACK_SPAM_ALL))
+esp32_marauder/WiFiScan.cpp:10096:      if ((currentScanMode == BT_ATTACK_APPLE_JUICE) ||
+esp32_marauder/WiFiScan.cpp:10097:          (currentScanMode == BT_ATTACK_SPAM_ALL))
+esp32_marauder/WiFiScan.cpp:10100:      if ((currentScanMode == BT_ATTACK_FLIPPER_SPAM) ||
+esp32_marauder/WiFiScan.cpp:10101:          (currentScanMode == BT_ATTACK_SPAM_ALL))
+esp32_marauder/WiFiScan.h:112:#define BT_ATTACK_SOUR_APPLE 36
+esp32_marauder/WiFiScan.h:113:#define BT_ATTACK_SWIFTPAIR_SPAM 37
+esp32_marauder/WiFiScan.h:114:#define BT_ATTACK_SPAM_ALL 38
+esp32_marauder/WiFiScan.h:115:#define BT_ATTACK_SAMSUNG_SPAM 39
+esp32_marauder/WiFiScan.h:117:#define BT_ATTACK_GOOGLE_SPAM 41
+esp32_marauder/WiFiScan.h:118:#define BT_ATTACK_FLIPPER_SPAM 42
+esp32_marauder/WiFiScan.h:158:#define BT_ATTACK_APPLE_JUICE 82
+=== Evil Portal routes ===
+esp32_marauder/CommandLine.cpp:763:        this->startScanFromCLI(WIFI_SCAN_EVIL_PORTAL, TFT_ORANGE, "Karma Attack");
+esp32_marauder/CommandLine.cpp:769:        wifi_scan_obj.StartScan(WIFI_SCAN_EVIL_PORTAL, TFT_ORANGE);*/
+esp32_marauder/CommandLine.cpp:805:          wifi_scan_obj.StartScan(WIFI_SCAN_EVIL_PORTAL, TFT_MAGENTA);
+esp32_marauder/EvilPortal.cpp:368:  if (scan_mode != WIFI_SCAN_EVIL_PORTAL || !this->has_ap || !this->has_html) {
+esp32_marauder/EvilPortal.h:38:#define WIFI_SCAN_EVIL_PORTAL 30
+esp32_marauder/MenuFunctions.cpp:288:          (wifi_scan_obj.currentScanMode == WIFI_SCAN_EVIL_PORTAL) ||
+esp32_marauder/MenuFunctions.cpp:389:            (wifi_scan_obj.currentScanMode == WIFI_SCAN_EVIL_PORTAL) ||
+esp32_marauder/MenuFunctions.cpp:1890:          wifi_scan_obj.StartScan(WIFI_SCAN_EVIL_PORTAL, TFT_ORANGE);
+esp32_marauder/MenuFunctions.cpp:1904:          wifi_scan_obj.StartScan(WIFI_SCAN_EVIL_PORTAL, TFT_ORANGE);
+esp32_marauder/MenuFunctions.cpp:1943:          wifi_scan_obj.StartScan(WIFI_SCAN_EVIL_PORTAL, TFT_ORANGE);
+esp32_marauder/WiFiScan.cpp:1904:  else if (scan_mode == WIFI_SCAN_EVIL_PORTAL)
+esp32_marauder/WiFiScan.cpp:2245:  (currentScanMode == WIFI_SCAN_EVIL_PORTAL) ||
+esp32_marauder/WiFiScan.cpp:10147:  else if (currentScanMode == WIFI_SCAN_EVIL_PORTAL) {
+esp32_marauder/WiFiScan.h:106:#define WIFI_SCAN_EVIL_PORTAL 30
+=== Direct TX calls ===
+esp32_marauder/WiFiScan.cpp:6899:  if (esp_wifi_80211_tx(WIFI_IF_STA, frame, current_index - frame, false) != ESP_OK)
+esp32_marauder/WiFiScan.cpp:7590:    esp_wifi_80211_tx(WIFI_IF_AP, temp_frame, sizeof(temp_frame), false);
+esp32_marauder/WiFiScan.cpp:7664:    esp_wifi_80211_tx(WIFI_IF_AP, temp_frame, sizeof(temp_frame), false);
+esp32_marauder/WiFiScan.cpp:7730:  esp_wifi_80211_tx(WIFI_IF_AP, packet, sizeof(packet), false);
+esp32_marauder/WiFiScan.cpp:7731:  esp_wifi_80211_tx(WIFI_IF_AP, packet, sizeof(packet), false);
+esp32_marauder/WiFiScan.cpp:7732:  esp_wifi_80211_tx(WIFI_IF_AP, packet, sizeof(packet), false);
+esp32_marauder/WiFiScan.cpp:7780:    esp_wifi_80211_tx(WIFI_IF_AP, temp_frame, sizeof(temp_frame), false);
+esp32_marauder/WiFiScan.cpp:7839:      esp_wifi_80211_tx(WIFI_IF_AP, good_probe_req_packet, sizeof(good_probe_req_packet), false);
+esp32_marauder/WiFiScan.cpp:7840:      esp_wifi_80211_tx(WIFI_IF_AP, good_probe_req_packet, sizeof(good_probe_req_packet), false);
+esp32_marauder/WiFiScan.cpp:7841:      esp_wifi_80211_tx(WIFI_IF_AP, good_probe_req_packet, sizeof(good_probe_req_packet), false);
+esp32_marauder/WiFiScan.cpp:7876:  esp_wifi_80211_tx(WIFI_IF_AP, deauth_frame_default, sizeof(deauth_frame_default), false);
+esp32_marauder/WiFiScan.cpp:7877:  esp_wifi_80211_tx(WIFI_IF_AP, deauth_frame_default, sizeof(deauth_frame_default), false);
+esp32_marauder/WiFiScan.cpp:7878:  esp_wifi_80211_tx(WIFI_IF_AP, deauth_frame_default, sizeof(deauth_frame_default), false);
+esp32_marauder/WiFiScan.cpp:7905:  esp_wifi_80211_tx(WIFI_IF_AP, deauth_frame_default, sizeof(deauth_frame_default), false);
+esp32_marauder/WiFiScan.cpp:7906:  esp_wifi_80211_tx(WIFI_IF_AP, deauth_frame_default, sizeof(deauth_frame_default), false);
+esp32_marauder/WiFiScan.cpp:7907:  esp_wifi_80211_tx(WIFI_IF_AP, deauth_frame_default, sizeof(deauth_frame_default), false);
+esp32_marauder/WiFiScan.cpp:7959:  esp_wifi_80211_tx(WIFI_IF_AP, eapol_packet_bad_msg1, frame_size, false);
+esp32_marauder/WiFiScan.cpp:8005:  esp_wifi_80211_tx(WIFI_IF_AP, eapol_packet_bad_msg1, frame_size, false);
+esp32_marauder/WiFiScan.cpp:8132:  esp_wifi_80211_tx(WIFI_IF_AP, association_packet, offset, false);
+esp32_marauder/WiFiScan.cpp:8591:        esp_wifi_80211_tx(WIFI_IF_AP, wifi_scan_obj.deauth_frame_default, sizeof(wifi_scan_obj.deauth_frame_default), false);
+esp32_marauder/WiFiScan.h:238:esp_err_t esp_wifi_80211_tx(wifi_interface_t ifx, const void *buffer, int len, bool en_sys_seq);

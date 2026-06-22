@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "node": "ghostseal-node1",
+  "time": "2026-06-09T20:28:09.783622+00:00",
+  "request": {
+    "action": "tool",
+    "subcommand": "list"
+  },
+  "result": {
+    "ok": true,
+    "returncode": 0,
+    "argv": [
+      "ghostseal-bridge",
+      "tool",
+      "list"
+    ],
+    "stdout": "[ghostseal-bridge] port=/dev/serial0 baud=115200\n[ghostseal-bridge] command=ghostseal tool list\n[ghostseal-bridge] log=/home/cyberdeck/ghostseal-node1/logs/ghostseal_bridge_20260609_132804.log\n>>> ghostseal tool list\n#ghostseal tool list\n{\"event_type\":\"ghostseal_tool_list\",\"passive\":[\"packet_rate\",\"channel_analyzer\",\"channel_activity\",\"signal_strength\",\"ap_sta_scan\"]}\n>\n",
+    "stderr": ""
+  }
+}

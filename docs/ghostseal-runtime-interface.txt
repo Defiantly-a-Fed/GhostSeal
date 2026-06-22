@@ -1,0 +1,23 @@
+﻿=== ghostseal_runtime references ===
+esp32_marauder/CommandLine.cpp:260:      ghostseal_runtime.status();
+esp32_marauder/CommandLine.cpp:280:      ghostseal_runtime.arm(durationSec);
+esp32_marauder/CommandLine.cpp:285:      ghostseal_runtime.disarm();
+esp32_marauder/CommandLine.cpp:786:	 if (!ghostseal_runtime.canTransmit("evil_portal_cli")) {
+esp32_marauder/EvilPortal.cpp:39:    ghostseal_runtime.markTxStop("evil_portal_ap");
+esp32_marauder/EvilPortal.cpp:320:  if (!ghostseal_runtime.canTransmit("evil_portal_ap")) {
+esp32_marauder/EvilPortal.cpp:323:  ghostseal_runtime.markTxStart("evil_portal_ap");
+esp32_marauder/GhostSealRuntime.cpp:3:GhostSealRuntime ghostseal_runtime;
+esp32_marauder/GhostSealRuntime.h:96:extern GhostSealRuntime ghostseal_runtime;
+esp32_marauder/esp32_marauder.ino:243:  ghostseal_runtime.begin();
+esp32_marauder/esp32_marauder.ino:427:  ghostseal_runtime.checkTimeout();
+=== canTransmit references ===
+esp32_marauder/CommandLine.cpp:786:	 if (!ghostseal_runtime.canTransmit("evil_portal_cli")) {
+esp32_marauder/EvilPortal.cpp:320:  if (!ghostseal_runtime.canTransmit("evil_portal_ap")) {
+esp32_marauder/GhostSealRuntime.h:54:    bool canTransmit(const char* moduleName) {
+=== tx_enabled references ===
+esp32_marauder/GhostSealRuntime.h:35:      Serial.println(F(",\"tx_enabled\":false}"));
+esp32_marauder/GhostSealRuntime.h:44:      Serial.println(F("{\"event_type\":\"ghostseal_tool_disarmed\",\"tx_enabled\":false}"));
+esp32_marauder/GhostSealRuntime.h:82:      Serial.print(F(",\"tx_enabled\":"));
+=== tool_armed references ===
+esp32_marauder/GhostSealRuntime.h:33:      Serial.print(F("{\"event_type\":\"ghostseal_tool_armed\",\"duration_sec\":"));
+esp32_marauder/GhostSealRuntime.h:80:      Serial.print(F("{\"event_type\":\"ghostseal_status\",\"quiet_boot\":true,\"uart_first\":true,\"tool_armed\":"));

@@ -1,0 +1,6 @@
+"Constant","Command","Problem"
+"BT_WARDRIVE_CMD","btwardrive","Defined in CommandLine.h but constant not found in CommandLine.cpp"
+"HELP_BT_WARDRIVE_CMD","btwardrive","Defined in CommandLine.h but constant not found in CommandLine.cpp"
+"HELP_BT_SAMSUNG_SPAM_CMD","samsungblespam","Defined in CommandLine.h but constant not found in CommandLine.cpp"
+"HELP_BT_SOUR_APPLE_CMD","sourapple","Defined in CommandLine.h but constant not found in CommandLine.cpp"
+"HELP_BT_SWIFTPAIR_SPAM_CMD","swiftpair","Defined in CommandLine.h but constant not found in CommandLine.cpp"
